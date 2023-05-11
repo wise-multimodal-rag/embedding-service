@@ -7,7 +7,7 @@ stages:
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  MAJOR: "1"
+  MAJOR: "V1"
   PIPELINE_SEQUENCE: $CI_PIPELINE_IID
 
 cache:
@@ -46,16 +46,11 @@ deploy-gitlab-job:
   stage: deploy
   services:
     - docker:23.0.1-dind
-
   variables:
     PROJECT_NAME: "python-fastapi-template" # TODO: 프로젝트명에 맞게 수정
-    MAJOR: "1"
-    PIPELINE_SEQUENCE: $CI_PIPELINE_IID
-
   before_script:
-    - YEAR_WEEK=`date +"%y%U"`
-    - SEM_VER=$MAJOR.$YEAR_WEEK.$PIPELINE_SEQUENCE
-    - IMAGE_TAG=$CI_REGISTRY_IMAGE/$PROJECT_NAME:$SEM_VER
+    - VERSION=$MAJOR.$CI_COMMIT_SHORT_SHA
+    - IMAGE_TAG=$CI_REGISTRY_IMAGE/$PROJECT_NAME:$VERSION
     - IMAGE_TAG_LATEST=$CI_REGISTRY_IMAGE/$PROJECT_NAME:latest
   script:
     - docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY

@@ -71,6 +71,9 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
     - `COMPRESSION`: 압축 형식 ("gz", "bz2", "xz", "lzma", "tar", "tar.gz", "tar.bz2", "tar.xz", "zip" 등의 형식 지원)
     - `ROTATION`, `RETENTION`, `COMPRESSION` 모두 loguru에 있는 파라미터로 자세한 파라미터 정보는 [공식 문서](https://loguru.readthedocs.io/en/stable/api/logger.html#file:~:text=See%20datetime.datetime-,The%20time%20formatting,-To%20use%20your) 확인
     - `PATH`: 디렉토리명까지 설정, (default = `YYYY/MM/*.log` 디렉토리 생성)
+- **Project Major Version**은 `pyproject.toml`의 [project.version]에서 설정한다.
+  - 해당 설정은 project version, FastAPI version 설정에 영향을 미친다.
+
 
 ### 4. Run
 - local run
