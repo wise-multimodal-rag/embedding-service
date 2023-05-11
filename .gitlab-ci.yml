@@ -27,8 +27,7 @@ build-job:
   script:
     - pip3 install build wheel
     - python3 -m build . --wheel
-    - version=$(awk -F'"' '/^version/ {print $2}' pyproject.toml) # pyproject.toml에 있는 project.version 가져오기
-    - pip3 install ./dist/python_fastapi_template-$version-py3-none-any.whl # 생성된 파이썬 패키지명 입력
+    - pip3 install .[test,lint]
 
 unit-test-job:
   stage: test
