@@ -51,7 +51,8 @@ def test_create_item():
         "status": "in stock",
         "stock": 10
     }
-    response = client.post(url="/items", params={"token": DEFAULT_TOKEN}, headers={"x-token": DEFAULT_X_TOKEN}, json=item)
+    response = client.post(url="/items", params={"token": DEFAULT_TOKEN}, headers={"x-token": DEFAULT_X_TOKEN},
+                           json=item)
     assert response.status_code == 200
     assert response.json()["result"]["item"]["name"] == item["name"]
     assert response.json()["result"]["item"]["status"] == item["status"]

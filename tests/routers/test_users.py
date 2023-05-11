@@ -17,6 +17,7 @@ def test_read_users():
         ]
     }
 
+
 def test_read_user_me():
     response = client.get("/users/me", params={"token": DEFAULT_TOKEN}, headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
@@ -27,6 +28,7 @@ def test_read_user_me():
             "username": "fakecurrentuser"
         }
     }
+
 
 def test_read_user():
     user_name = "sally"

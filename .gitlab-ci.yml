@@ -10,30 +10,37 @@ variables:
   MAJOR: "1"
   PIPELINE_SEQUENCE: $CI_PIPELINE_IID
 
+cache:
+  paths:
+    - .cache/pip
+    - venv/
 
 before_script:
   - python3 -V
-  - pip install poetry
-  - poetry -V
-  - poetry config virtualenvs.create false
-  - poetry install --no-root
+  - pip install --upgrade pip
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
 
 build-job:
   stage: build
   script:
-    - poetry install --no-root
+    - pip3 install build wheel
+    - python3 -m build . --wheel
+    - version=$(awk -F'"' '/^version/ {print $2}' pyproject.toml) # pyproject.toml에 있는 project.version 가져오기
+    - pip3 install ./dist/python_fastapi_template-$version-py3-none-any.whl # 생성된 파이썬 패키지명 입력
 
 unit-test-job:
   stage: test
   script:
     - export PYTHONPATH=./app
-    - poetry run pytest
+    - pytest -v tests
 
 lint-test-job:
   stage: test
   script:
     - which flake8
-    - poetry run flake8
+    - flake8 --config=setup.cfg
 
 deploy-gitlab-job:
   image: docker:23.0.1

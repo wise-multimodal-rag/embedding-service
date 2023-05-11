@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-
 from app.dependencies import DEFAULT_TOKEN, DEFAULT_X_TOKEN
 from app.main import app
 
