@@ -49,9 +49,9 @@ def build_date():
 def make_version_info():
     # Adding the git rev number needs to be done inside write_version_py(),
     # otherwise the import of numpy.version messes up the build under Python 3.
-    home_path = Path.cwd().parent
+    work_dir = Path.cwd()
     FULLVERSION = VERSION
-    if os.path.exists(os.path.join(home_path, '.git')):  # HOME/.git directory
+    if os.path.exists(Path(work_dir) / '.git'):  # HOME/.git directory
         GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = git_version()
     else:
         GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown"
@@ -90,23 +90,23 @@ build_date: str = '{build_date}'
 
 def get_version_info():
     try:
-        import app.version_info as git_info
+        import version_info
     except ImportError as ie:
         logging.error(f"{ie}: Check if 'app.version_info' exists.")
 
     FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown"
     BUILD_DATE = build_date()
 
-    if hasattr(git_info, 'version'):
-        FULL_VERSION = git_info.version
-    if hasattr(git_info, 'git_branch'):
-        GIT_BRANCH = git_info.git_branch
-    if hasattr(git_info, 'git_revision'):
-        GIT_REVISION = git_info.git_revision
-    if hasattr(git_info, 'git_short_revision'):
-        GIT_SHORT_REVISION = git_info.git_short_revision
-    if hasattr(git_info, 'build_date'):
-        BUILD_DATE = git_info.build_date
+    if hasattr(version_info, 'version'):
+        FULL_VERSION = version_info.version
+    if hasattr(version_info, 'git_branch'):
+        GIT_BRANCH = version_info.git_branch
+    if hasattr(version_info, 'git_revision'):
+        GIT_REVISION = version_info.git_revision
+    if hasattr(version_info, 'git_short_revision'):
+        GIT_SHORT_REVISION = version_info.git_short_revision
+    if hasattr(version_info, 'build_date'):
+        BUILD_DATE = version_info.build_date
 
     return FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 

@@ -1,0 +1,8 @@
+PORT: 8000
+LOG:
+  LEVEL: DEBUG
+  SAVE: 1 # LOG를 파일형식으로 저장할 경우 1, 아니면 0 으로 설정
+  ROTATION: 00:00
+  RETENTION: 10 days
+  COMPRESSION: zip
+  PATH: D:/DE/project/python-fastapi-template/logs  #TODO: 로그 PATH 설정

@@ -5,39 +5,22 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Seoul
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VIRTUALENVS_IN_PROJECT=true
-ENV PATH="$POETRY_HOME/bin:$PATH"
-ENV LOG_LEVEL=INFO
+ENV PYTHONPATH=/home/wisenut/app:${PYTHONPATH}
 
 # Install libraries
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    curl \
     tzdata
-
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.4.1 python3 -
-
-# Create user (Error - Permission denied: poetry.lock)
-#RUN groupadd -g 1012 wisenut
-#RUN useradd wisenut -u 1012 -g wisenut -m -s /bin/bash
-#USER wisenut
 
 # Set the working directory
 WORKDIR /home/wisenut/app
 
-ENV PYTHONPATH=/home/wisenut/apps:${PYTHONPATH}
+# Copy necessary files and directory
+COPY pyproject.toml config.yaml ./
+COPY ./app ./app/
 
-# copy src. see .dockerignore
-COPY . .
-
-# Install the dependencies: poetry 가상 환경 생성 비활성화, 시스템 전역에 패키지 설치
-RUN poetry config virtualenvs.create false \
-    && poetry install --only main --no-interaction --no-ansi
-
-# Copy poetry
-COPY . .
+# Install Requirements
+RUN pip install --upgrade pip && pip install --no-cache-dir .
 
 # Expose the port
 EXPOSE 8000

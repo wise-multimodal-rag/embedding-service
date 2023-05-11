@@ -4,18 +4,18 @@
   통합된 [Security utilites](https://fastapi.tiangolo.com/tutorial/security/)를 사용해야 한다.
 - TODO: JWT token 사용하여 공통 인증 서비스 연동
 """
-
+import os
 from typing import Annotated
 
 from fastapi import Header
 from starlette import status
 
-import models
-from database import SessionLocal, engine
-from exceptions import CustomHTTPError
+import app.models as models
+from app.database import SessionLocal, engine
+from app.exceptions import CustomHTTPError
 
-DEFAULT_X_TOKEN = "fake-super-secret-token"
-DEFAULT_TOKEN = "default-token"
+DEFAULT_X_TOKEN = os.getenv('DEFAULT_X_TOKEN', "fake-super-secret-token")
+DEFAULT_TOKEN = os.getenv('DEFAULT_TOKEN', "default-token")
 
 
 async def get_token_header(x_token: Annotated[str, Header()]):

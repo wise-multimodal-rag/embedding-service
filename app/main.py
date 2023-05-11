@@ -2,19 +2,32 @@ import os
 import logging
 import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+import yaml
 from starlette.responses import JSONResponse
 from uvicorn import Config, Server
 from loguru import logger
 from fastapi import Depends, FastAPI, Request
 
 from app.version import get_version_info, write_version_py
-from dependencies import get_query_token, get_token_header
-from exceptions import CustomHTTPError
-from internal import admin
-from routers import items, users
+from app.dependencies import get_query_token, get_token_header
+from app.exceptions import CustomHTTPError
+from app.internal import admin
+from app.routers import items, users
 
-LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
+
+def read_config(conf_path: str = 'config.yaml') -> tuple[str]:
+    conf_path = Path(conf_path).resolve()
+    config: dict[str, str] = yaml.load(Path(conf_path).open('r', encoding='utf-8'), Loader=yaml.FullLoader)
+    required_config = ['PORT', 'LOG']
+    if config is None:
+        sys.exit(f"Set {required_config} config.yaml")
+    return config
+
+
+conf = read_config(conf_path='config.yaml')
+LOG_LEVEL = logging.getLevelName(conf['LOG']['LEVEL'])
 JSON_LOGS = True if os.environ.get("JSON_LOGS", "0") == "1" else False
 
 
@@ -48,6 +61,14 @@ def setup_logging():
 
     # configure loguru
     logger.configure(handlers=[{"sink": sys.stdout, "serialize": JSON_LOGS}])
+    if conf['LOG']['SAVE'] == 1:
+        logger.add(
+            Path(conf['LOG']['PATH']) / "{time:YYYY}" / "{time:MM}" / "{time:YYYYMMDD}_info.log",
+            level=LOG_LEVEL,
+            rotation=conf['LOG']['ROTATION'],
+            retention=conf['LOG']['RETENTION'],
+            compression=conf['LOG']['COMPRESSION']
+        )
 
 
 def check_env_exist() -> None:
@@ -58,7 +79,7 @@ def check_env_exist() -> None:
     Returns: None
 
     """
-    env_list = ['CHECK_ENV']  # TODO: 확인할 환경변수 설정
+    env_list = ['DEFAULT_X_TOKEN', 'DEFAULT_TOKEN']  # TODO: 확인할 환경변수 설정
     for env in env_list:
         if env not in os.environ.keys():
             logging.warning(f"set {repr(env)} environment variable.")
@@ -67,6 +88,7 @@ def check_env_exist() -> None:
 @asynccontextmanager
 async def lifespan(lifespan_app: FastAPI):
     # startup event
+    logging.debug(f"Working Directory: {repr(os.getcwd())}")
     logging.info("Start Python FastAPI Template")
     logging.info("Check env exist ...")
     check_env_exist()
@@ -80,7 +102,7 @@ app = FastAPI(
     lifespan=lifespan,
     title="Python FastAPI Template",
     description="DE Team Python FastAPI Template",
-    version="0.1.2",
+    version="0.1.4",
     dependencies=[Depends(get_query_token)]
 )
 
@@ -142,11 +164,16 @@ async def info():
 
 
 if __name__ == "__main__":
+    if 'PORT' in conf.keys():
+        port = int(conf['PORT'])
+    else:
+        port = 8000
+
     server = Server(
         Config(
             "main:app",
             host="0.0.0.0",
-            port=8000,
+            port=port,
             log_level=LOG_LEVEL,
         ),
     )
