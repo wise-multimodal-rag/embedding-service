@@ -23,7 +23,7 @@ COPY pyproject.toml config.yaml ./
 COPY ./app ./app/
 
 # Install Requirements
-RUN pip install --upgrade pip && pip install --no-cache-dir .
+RUN pip install --upgrade pip && pip install --no-cache-dir .[test,lint]
 
 # Expose the port
 EXPOSE 8000
