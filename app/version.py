@@ -1,11 +1,13 @@
 import logging
 import os
 import subprocess
+import toml
 from datetime import datetime
 from pathlib import Path
 
+pyproject_info = toml.load(Path('pyproject.toml').open('r', encoding='utf-8'))
+VERSION = pyproject_info['project']['version']
 ISRELEASED = False
-VERSION = 'V1'
 
 
 # Return the git revision as a string (local git information)

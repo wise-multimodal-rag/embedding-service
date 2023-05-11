@@ -26,6 +26,8 @@ def read_config(conf_path: str = 'config.yaml') -> tuple[str]:
     return config
 
 
+write_version_py(file_name='version_info.py')
+VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
 conf = read_config(conf_path='config.yaml')
 LOG_LEVEL = logging.getLevelName(conf['LOG']['LEVEL'])
 JSON_LOGS = True if os.environ.get("JSON_LOGS", "0") == "1" else False
@@ -92,7 +94,6 @@ async def lifespan(lifespan_app: FastAPI):
     logging.info("Start Python FastAPI Template")
     logging.info("Check env exist ...")
     check_env_exist()
-    write_version_py()
     yield
     # shutdown event
     logging.info("Shut down Python FastAPI Template")
@@ -102,7 +103,7 @@ app = FastAPI(
     lifespan=lifespan,
     title="Python FastAPI Template",
     description="DE Team Python FastAPI Template",
-    version="0.1.4",
+    version=VERSION,
     dependencies=[Depends(get_query_token)]
 )
 
@@ -153,9 +154,11 @@ async def health():
 
 @app.get("/info")
 async def info():
-    VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
+    version: str = VERSION
+    if 'Unknown' in version:
+        version = version.split('.')[0]
     return {
-        "version": VERSION,
+        "version": version,
         "git_branch": GIT_BRANCH,
         "git_revision": GIT_REVISION,
         "git_short_revision": GIT_SHORT_REVISION,
