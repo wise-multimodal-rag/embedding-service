@@ -1,20 +1,20 @@
-import os
 import logging
+import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import yaml
+from fastapi import Depends, FastAPI, Request
+from loguru import logger
 from starlette.responses import JSONResponse
 from uvicorn import Config, Server
-from loguru import logger
-from fastapi import Depends, FastAPI, Request
 
-from app.version import get_version_info, write_version_py
 from app.dependencies import get_query_token, get_token_header
 from app.exceptions import CustomHTTPError
 from app.internal import admin
 from app.routers import items, users
+from app.version import get_version_info, write_version_py
 
 
 def read_config(conf_path: str = 'config.yaml') -> tuple[str]:

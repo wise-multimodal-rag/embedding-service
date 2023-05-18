@@ -1,15 +1,15 @@
 # Python FastAPI Template
 
-![PythonVersion](https://img.shields.io/badge/python-3.10-blue)
-![FastAPIVersion](https://img.shields.io/badge/fastapi-0.95.0-yellowgreen)
-![loguru](https://img.shields.io/badge/loguru-0.6.0-orange)
+![PythonVersion](https://img.shields.io/badge/python-3.9.13-blue)
+![FastAPIVersion](https://img.shields.io/badge/fastapi-0.95.2-yellowgreen)
+![loguru](https://img.shields.io/badge/loguru-0.7.0-orange)
 
 ### DE팀 전용 FastAPI 개발 템플릿 
 
 > API 명세는 와이즈넛 [Restful API 디자인 가이드](https://docs.google.com/document/d/1tSniwfrVaTIaTT4MxhBRAmv-S_ECcoSFAXlYrsg4K0Y/edit#heading=h.60fu2rc04bck)를 따른다.
 
 Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
-1. Python 3.10
+1. Python 3.9: 높은 호환성
 2. MSA 구조에 적합한 FastAPI 템플릿
 3. setuptools를 사용한 의존성 (`pyproject.toml`으로 한 번에 관리)
 4. 내부망 환경 구성
