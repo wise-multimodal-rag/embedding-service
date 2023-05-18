@@ -1,9 +1,10 @@
 import logging
 import os
 import subprocess
-import toml
 from datetime import datetime
 from pathlib import Path
+
+import toml
 
 pyproject_info = toml.load(Path('pyproject.toml').open('r', encoding='utf-8'))
 VERSION = pyproject_info['project']['version']
