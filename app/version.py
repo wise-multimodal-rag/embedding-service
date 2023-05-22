@@ -6,9 +6,9 @@ from pathlib import Path
 
 import toml
 
-pyproject_info = toml.load(Path('pyproject.toml').open('r', encoding='utf-8'))
-VERSION = pyproject_info['project']['version']
-ISRELEASED = False
+pyproject_info: dict[str, str] = toml.load(Path('pyproject.toml').open('r', encoding='utf-8'))
+VERSION: str = str(pyproject_info['project']['version'])    # type: ignore
+ISRELEASED: bool = False
 
 
 # Return the git revision as a string (local git information)

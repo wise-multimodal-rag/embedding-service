@@ -17,9 +17,8 @@ from app.routers import items, users
 from app.version import get_version_info, write_version_py
 
 
-def read_config(conf_path: str = 'config.yaml') -> tuple[str]:
-    conf_path = Path(conf_path).resolve()
-    config: dict[str, str] = yaml.load(Path(conf_path).open('r', encoding='utf-8'), Loader=yaml.FullLoader)
+def read_config(conf_path: str = 'config.yaml') -> dict[str, str]:
+    config: dict[str, str] = yaml.load(Path(conf_path).resolve().open('r', encoding='utf-8'), Loader=yaml.FullLoader)
     required_config = ['PORT', 'LOG']
     if config is None:
         sys.exit(f"Set {required_config} config.yaml")
@@ -28,9 +27,9 @@ def read_config(conf_path: str = 'config.yaml') -> tuple[str]:
 
 write_version_py(file_name='version_info.py')
 VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
-conf = read_config(conf_path='config.yaml')
-LOG_LEVEL = logging.getLevelName(conf['LOG']['LEVEL'])
-JSON_LOGS = True if os.environ.get("JSON_LOGS", "0") == "1" else False
+conf: dict[str, str] = read_config(conf_path='config.yaml')
+LOG_LEVEL: str = logging.getLevelName(conf['LOG']['LEVEL']) # type: ignore
+JSON_LOGS: bool = True if os.environ.get("JSON_LOGS", "0") == "1" else False
 
 
 class InterceptHandler(logging.Handler):

@@ -60,16 +60,16 @@ test = [
     "httpx >= 0.24.0"
 ]
 lint = [
-    "flake8 >= 6.0.0"
+    "mypy >= 1.3.0",
+    "ruff >= 0.0.269"
 ]
 
 [tool.setuptools]
-py-modules = ["app"]    #TODO: 패키징할 패키지 선언 (현재는 monolith 구조인 app을 패키지 디렉토리로 선언)
+py-modules = ["app"]    #TODO: 패키징할 패키지 선언 (현재는 MSA 구조인 app을 패키지 디렉토리로 선언)
 
-[tool.flake8]
-ignore = ['W', 'E128']
-max-line-length = 125
-max-complexity = 10
+[tool.ruff]
+ignore = ['W']
+line-length = 125
 exclude = [
     '.git',
     '__pycache__',
@@ -79,3 +79,27 @@ exclude = [
     'build',
     'dist'
 ]
+target-version = "py39"
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+exclude = [
+    '.git',
+    '__pycache__',
+    'docs',
+    'venv',
+    'tests',
+    'build',
+    'dist'
+]
+[[tool.mypy.overrides]]
+module = [
+    "toml",
+    "yaml",
+    "version_info"
+]
+ignore_missing_imports = true
