@@ -10,7 +10,7 @@ from loguru import logger
 from starlette.responses import JSONResponse
 from uvicorn import Config, Server
 
-from app.dependencies import get_query_token, get_token_header
+from app.dependencies import get_token_header
 from app.exceptions import CustomHTTPError
 from app.internal import admin
 from app.routers import items, users
@@ -103,7 +103,7 @@ app = FastAPI(
     title="Python FastAPI Template",
     description="DE Team Python FastAPI Template",
     version=VERSION,
-    dependencies=[Depends(get_query_token)]
+    dependencies=[Depends(get_token_header)]
 )
 
 app.include_router(users.router)
@@ -112,7 +112,6 @@ app.include_router(
     admin.router,  # app/internal/admin.py 원본을 수정하지 않고 선언 가능
     prefix="/admin",
     tags=["admin"],
-    dependencies=[Depends(get_token_header)],
     responses={418: {"description": "I'm a teapot"}},
 )
 

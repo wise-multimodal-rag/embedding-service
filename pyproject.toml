@@ -73,6 +73,8 @@ line-length = 125
 exclude = [
     '.git',
     '__pycache__',
+    '.mypy_cache',
+    '.ruff_cache',
     'docs',
     'venv',
     'tests',
@@ -90,6 +92,8 @@ warn_unused_configs = true
 exclude = [
     '.git',
     '__pycache__',
+    '.mypy_cache',
+    '.ruff_cache',
     'docs',
     'venv',
     'tests',
