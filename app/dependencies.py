@@ -20,12 +20,12 @@ DEFAULT_TOKEN = os.getenv('DEFAULT_TOKEN', "default-token")
 
 async def get_token_header(x_token: Annotated[str, Header()]):
     if x_token != DEFAULT_X_TOKEN:
-        raise CustomHTTPError(status_code=status.HTTP_400_BAD_REQUEST, detail="X-Token header invalid")
+        raise CustomHTTPError(status_code=str(status.HTTP_400_BAD_REQUEST), detail="X-Token header invalid")
 
 
 async def get_query_token(token: str):
     if token != DEFAULT_TOKEN:
-        raise CustomHTTPError(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token provided")
+        raise CustomHTTPError(status_code=str(status.HTTP_400_BAD_REQUEST), detail="Invalid token provided")
 
 
 models.Base.metadata.create_all(bind=engine)

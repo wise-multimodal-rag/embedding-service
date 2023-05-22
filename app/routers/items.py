@@ -9,9 +9,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app import crud
+from app.dependencies import get_db
 from app.dependencies import get_token_header
 from app.exceptions import CustomHTTPError
-from app.dependencies import get_db
 from app.models import APIResponseModel
 
 router = APIRouter(
@@ -47,7 +47,7 @@ async def read_item(
         )
 ):
     if item_id not in fake_items_db:
-        raise CustomHTTPError(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+        raise CustomHTTPError(status_code=str(status.HTTP_404_NOT_FOUND), detail="Item not found")
     return {"result": {"name": fake_items_db[item_id]["name"], "item_id": item_id}}
 
 
@@ -69,7 +69,8 @@ async def update_item(
         )
 ):
     if item_id != "plumbus":
-        raise CustomHTTPError(status_code=status.HTTP_403_FORBIDDEN, detail="You can only update the item: plumbus")
+        raise CustomHTTPError(status_code=str(status.HTTP_403_FORBIDDEN),
+                              detail="You can only update the item: plumbus")
     return {"result": {"item_id": item_id, "name": "The great Plumbus"}}
 
 
