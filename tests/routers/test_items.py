@@ -1,12 +1,12 @@
 from fastapi.testclient import TestClient
 from app.main import app
-from app.dependencies import DEFAULT_TOKEN, DEFAULT_X_TOKEN
+from app.dependencies import DEFAULT_X_TOKEN
 
 client = TestClient(app)
 
 
 def test_read_items():
-    response = client.get("/items", params={"token": DEFAULT_TOKEN}, headers={"x-token": DEFAULT_X_TOKEN})
+    response = client.get("/items", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
         "code": 200000,
@@ -19,7 +19,7 @@ def test_read_items():
 
 def test_read_item():
     item_id = "gun"
-    response = client.get(f"/items/{item_id}", params={"token": DEFAULT_TOKEN}, headers={"x-token": DEFAULT_X_TOKEN})
+    response = client.get(f"/items/{item_id}", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
         "code": 200000,
@@ -33,7 +33,7 @@ def test_read_item():
 
 def test_update_item():
     item_id = "plumbus"
-    response = client.put(f"/items/{item_id}", params={"token": DEFAULT_TOKEN}, headers={"x-token": DEFAULT_X_TOKEN})
+    response = client.put(f"/items/{item_id}", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
         "code": 200000,
@@ -51,7 +51,7 @@ def test_create_item():
         "status": "in stock",
         "stock": 10
     }
-    response = client.post(url="/items", params={"token": DEFAULT_TOKEN}, headers={"x-token": DEFAULT_X_TOKEN},
+    response = client.post(url="/items", headers={"x-token": DEFAULT_X_TOKEN},
                            json=item)
     assert response.status_code == 200
     assert response.json()["result"]["item"]["name"] == item["name"]
