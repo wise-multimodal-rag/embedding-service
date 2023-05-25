@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]   # TODO: 프로젝트 메타데이터 작성 (되도록이면 main.py의 app과 동일한 name, version, description으로 작성하기)
 name = "python-fastapi-template"
-version = "V1"  # major 버전만 기입
+version = "v1"  # major 버전만 기입
 authors = [
     { name = "Seoyeon Park", email = "sally9476@wisenut.co.kr" }
 ]

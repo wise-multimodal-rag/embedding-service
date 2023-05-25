@@ -7,7 +7,7 @@ stages:
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  MAJOR: "V1"
+  MAJOR: "v1" # TODO: major version 작성
   PIPELINE_SEQUENCE: $CI_PIPELINE_IID
   TZ: "Asia/Seoul"
 
