@@ -1,4 +1,6 @@
 from fastapi.testclient import TestClient
+
+from app import SERVICE_CODE
 from app.main import app
 from app.dependencies import DEFAULT_X_TOKEN
 
@@ -9,11 +11,12 @@ def test_read_items():
     response = client.get("/items", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
-        "code": 200000,
+        "code": int(str(SERVICE_CODE) + "200"),
         "message": "API response success",
         "result": {
             "plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}
-        }
+        },
+        "description": ""
     }
 
 
@@ -22,12 +25,13 @@ def test_read_item():
     response = client.get(f"/items/{item_id}", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
-        "code": 200000,
+        "code": int(str(SERVICE_CODE) + "200"),
         "message": "API response success",
         "result": {
             "name": "Portal Gun",
             "item_id": "gun"
-        }
+        },
+        "description": ""
     }
 
 
@@ -36,12 +40,13 @@ def test_update_item():
     response = client.put(f"/items/{item_id}", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
-        "code": 200000,
+        "code": int(str(SERVICE_CODE) + "200"),
         "message": "API response success",
         "result": {
             "item_id": "plumbus",
             "name": "The great Plumbus"
-        }
+        },
+        "description": ""
     }
 
 

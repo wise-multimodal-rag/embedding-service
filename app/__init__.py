@@ -1,3 +1,1 @@
-from pathlib import Path
-
-APP_HOME_PATH = Path.cwd()
+SERVICE_CODE: int = 100

@@ -7,4 +7,4 @@ router = APIRouter()
 
 @router.post("", response_model=APIResponseModel)
 async def update_admin():
-    return {"result": "Admin getting schwifty"}
+    return {"message": "Admin getting schwifty"}

@@ -14,7 +14,7 @@ fake_users_db = [{"username": "Rick"}, {"username": "Morty"}]
 
 @router.get("/users", tags=["users"], response_model=APIResponseModel, response_class=JSONResponse)
 async def read_users():
-    return {"result": fake_users_db}
+    return {"result": {"users": fake_users_db}}
 
 
 @router.get("/users/me", tags=["users"], response_model=APIResponseModel, response_class=JSONResponse)

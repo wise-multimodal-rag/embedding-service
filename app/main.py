@@ -28,7 +28,7 @@ def read_config(conf_path: str = 'config.yaml') -> dict[str, str]:
 write_version_py(file_name='version_info.py')
 VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
 conf: dict[str, str] = read_config(conf_path='config.yaml')
-LOG_LEVEL: str = logging.getLevelName(conf['LOG']['LEVEL']) # type: ignore
+LOG_LEVEL: str = logging.getLevelName(conf['LOG']['LEVEL'])  # type: ignore
 JSON_LOGS: bool = True if os.environ.get("JSON_LOGS", "0") == "1" else False
 
 
@@ -80,7 +80,7 @@ def check_env_exist() -> None:
     Returns: None
 
     """
-    env_list = ['DEFAULT_X_TOKEN', 'DEFAULT_TOKEN']  # TODO: 확인할 환경변수 설정
+    env_list = ['DEFAULT_TOKEN']  # TODO: 확인할 환경변수 설정
     for env in env_list:
         if env not in os.environ.keys():
             logging.warning(f"set {repr(env)} environment variable.")
@@ -117,27 +117,35 @@ app.include_router(
 
 
 @app.exception_handler(CustomHTTPError)
-async def badrequest_handler(request: Request, exc: CustomHTTPError):
-    return JSONResponse(status_code=400,
-                        content={"code": exc.status_code, "message": f"{exc.detail}"})
+def badrequest_handler(request: Request, exc: CustomHTTPError):
+    return JSONResponse(
+        status_code=200,
+        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
+    )
 
 
 @app.exception_handler(CustomHTTPError)
-async def unauthorized_handler(request: Request, exc: CustomHTTPError):
-    return JSONResponse(status_code=401,
-                        content={"code": exc.status_code, "message": f"{exc.detail}"})
+def unauthorized_handler(request: Request, exc: CustomHTTPError):
+    return JSONResponse(
+        status_code=200,
+        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
+    )
 
 
 @app.exception_handler(CustomHTTPError)
 async def forbidden_handler(request: Request, exc: CustomHTTPError):
-    return JSONResponse(status_code=403,
-                        content={"code": exc.status_code, "message": f"{exc.detail}"})
+    return JSONResponse(
+        status_code=200,
+        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
+    )
 
 
 @app.exception_handler(CustomHTTPError)
-async def notfound_handler(request: Request, exc: CustomHTTPError):
-    return JSONResponse(status_code=404,
-                        content={"code": exc.status_code, "message": f"{exc.detail}"})
+def notfound_handler(request: Request, exc: CustomHTTPError):
+    return JSONResponse(
+        status_code=200,
+        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
+    )
 
 
 @app.get("/")

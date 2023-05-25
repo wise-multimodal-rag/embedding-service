@@ -1,4 +1,5 @@
 class CustomHTTPError(Exception):
-    def __init__(self, status_code: str, detail: str):
-        self.status_code = status_code
-        self.detail = detail
+    def __init__(self, code: int, message: str, result):
+        self.code = code
+        self.message = message
+        self.result = result
