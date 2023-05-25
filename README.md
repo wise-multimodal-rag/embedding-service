@@ -52,7 +52,7 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
 - ❗ 도커 빌드 및 실행할 경우, `version.py` 실행 사전 작업 필수 ❗    
   👉 `version_info.py` 정보 생성 과정
   ```python
-  version: str = 'V1.9e33312'
+  version: str = 'v1.9e33312'
   git_branch: str = 'minimal-refactoring'
   git_revision: str = '9e333123aa56235bb0dc81f0a11e53d204cbe68f'
   git_short_revision: str = '9e33312'
