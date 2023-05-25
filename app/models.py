@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from app import SERVICE_CODE
 from app.database import Base
 
 
@@ -32,7 +33,8 @@ class Item(Base):
 
 
 class APIResponseModel(BaseModel):
-    """기본 API 응답 포맷 by AI플랫폼 Restful API 디자인 가이드"""
-    code: int = 200000
+    """기본 API 응답 포맷 by AIP Restful API 디자인 가이드"""
+    code: int = int(str(SERVICE_CODE) + "200")
     message: str = "API response success"
-    result: Any
+    result: dict[str, Any] = {}
+    description: str = ""

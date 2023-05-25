@@ -19,7 +19,7 @@ RUN apt-get update && \
 WORKDIR /home/wisenut/app
 
 # Copy necessary files and directory
-COPY pyproject.toml config.yaml ./
+COPY pyproject.toml config.yaml version_info.py ./
 COPY ./app ./app/
 
 # Install Requirements

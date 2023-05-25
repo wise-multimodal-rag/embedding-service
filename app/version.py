@@ -6,9 +6,9 @@ from pathlib import Path
 
 import toml
 
-pyproject_info: dict[str, str] = toml.load(Path('pyproject.toml').open('r', encoding='utf-8'))
-VERSION: str = str(pyproject_info['project']['version'])    # type: ignore
-ISRELEASED: bool = False
+pyproject_info = toml.load(Path('pyproject.toml').open('r', encoding='utf-8'))
+VERSION = pyproject_info['project']['version']
+ISRELEASED = False
 
 
 # Return the git revision as a string (local git information)
@@ -91,6 +91,36 @@ build_date: str = '{build_date}'
     ))
 
 
+def write_version_py_gitlab_ci(file_name='version_info.py'):
+    info = """\
+version: str = '{version}'
+git_branch: str = '{git_branch}'
+git_revision: str = '{git_revision}'
+git_short_revision: str = '{git_short_revision}'
+build_date: str = '{build_date}'
+"""
+    FULL_VERSION = VERSION
+    GIT_REVISION = os.getenv('CI_COMMIT_SHA', 'UNKNOWN')
+    GIT_SHORT_REVISION = os.getenv('CI_COMMIT_SHORT_SHA', 'UNKNOWN')
+    if not ISRELEASED:
+        FULL_VERSION += f'.{GIT_SHORT_REVISION}'
+    GIT_BRANCH = os.getenv('CI_COMMIT_BRANCH', 'UNKNOWN')
+    BUILD_DATE = build_date()
+
+    if GIT_BRANCH.lower() == 'unknown' or GIT_REVISION.lower() == 'unknown' or GIT_SHORT_REVISION.lower() == 'unknown':
+        logging.warning("Unable to get git version information. Set to 'Unknown'")
+    else:
+        logging.info("Complete writing version, git info, build date on 'version_info.py'. Check it.")
+    version_info_path = Path(file_name).open(mode='w')
+    version_info_path.write(info.format(
+        version=FULL_VERSION,
+        git_branch=GIT_BRANCH,
+        git_revision=GIT_REVISION,
+        git_short_revision=GIT_SHORT_REVISION,
+        build_date=BUILD_DATE,
+    ))
+
+
 def get_version_info():
     try:
         import version_info
@@ -123,6 +153,7 @@ if __name__ == '__main__':
     # TODO: release mode
     # set_release_mode()
 
+    # GitLab CI Deploy Job에서 version_info.py 작성을 위한 main
     filename = 'version_info.py'
     print("Create a version file... {}".format(filename))
-    write_version_py(filename)
+    write_version_py_gitlab_ci(filename)

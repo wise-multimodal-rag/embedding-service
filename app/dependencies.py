@@ -11,6 +11,7 @@ from fastapi import Header
 from starlette import status
 
 import app.models as models
+from app import SERVICE_CODE
 from app.database import SessionLocal, engine
 from app.exceptions import CustomHTTPError
 
@@ -19,7 +20,10 @@ DEFAULT_X_TOKEN = os.getenv('DEFAULT_X_TOKEN', "fake-super-secret-token")
 
 async def get_token_header(x_token: Annotated[str, Header()]):
     if x_token != DEFAULT_X_TOKEN:
-        raise CustomHTTPError(status_code=str(status.HTTP_400_BAD_REQUEST), detail="X-Token header invalid")
+        raise CustomHTTPError(
+            code=int(str(SERVICE_CODE) + str(status.HTTP_401_UNAUTHORIZED)),
+            message="Invalid x-token header", result={}
+        )
 
 
 models.Base.metadata.create_all(bind=engine)
