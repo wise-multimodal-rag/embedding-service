@@ -122,13 +122,14 @@ build_date: str = '{build_date}'
 
 
 def get_version_info():
+    BUILD_DATE = build_date()
+    FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown"
+
     try:
-        import version_info
+        import version_info  # type: ignore
     except ImportError as ie:
         logging.error(f"{ie}: Check if 'app.version_info' exists.")
-
-    FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown"
-    BUILD_DATE = build_date()
+        return FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 
     if hasattr(version_info, 'version'):
         FULL_VERSION = version_info.version

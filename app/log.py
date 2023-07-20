@@ -4,7 +4,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from app import conf, LOG_LEVEL, JSON_LOGS
+from app import LOG_LEVEL, JSON_LOGS, conf
 
 
 class InterceptHandler(logging.Handler):
@@ -17,8 +17,8 @@ class InterceptHandler(logging.Handler):
 
         # Find caller from where originated the logged message
         frame, depth = logging.currentframe(), 2
-        while frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back
+        while frame.f_code.co_filename == logging.__file__:  # type: ignore
+            frame = frame.f_back  # type: ignore
             depth += 1
 
         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
@@ -27,7 +27,10 @@ class InterceptHandler(logging.Handler):
 def setup_logging():
     # intercept everything at the root logger
     logging.root.handlers = [InterceptHandler()]
-    logging.root.setLevel(LOG_LEVEL)
+    try:
+        logging.root.setLevel(LOG_LEVEL)
+    except ValueError:
+        sys.exit(f"Set appropriate 'LOG_LEVEL' environment variable. current {LOG_LEVEL=}")
 
     # remove every other logger's handlers
     # and propagate to root logger
@@ -49,27 +52,28 @@ def setup_logging():
 
 class Log:
     TRACE: int = 10
+    log_level = int(LOG_LEVEL)
 
     @staticmethod
     def is_trace_enable():
-        return True if LOG_LEVEL <= Log.TRACE else False
+        return Log.log_level <= Log.TRACE
 
     @staticmethod
     def is_debug_enable():
-        return True if LOG_LEVEL <= logging.DEBUG else False
+        return Log.log_level <= logging.DEBUG
 
     @staticmethod
     def is_info_enable():
-        return True if LOG_LEVEL <= logging.INFO else False
+        return Log.log_level <= logging.INFO
 
     @staticmethod
     def is_warn_enable():
-        return True if LOG_LEVEL <= logging.WARN else False
+        return Log.log_level <= logging.WARN
 
     @staticmethod
     def is_error_enable():
-        return True if LOG_LEVEL <= logging.ERROR else False
+        return Log.log_level <= logging.ERROR
 
     @staticmethod
     def is_fatal_enable():
-        return True if LOG_LEVEL <= logging.FATAL else False
+        return Log.log_level <= logging.FATAL

@@ -1,11 +1,13 @@
 venv
+tests/
+docs/
 logs
 .gitlab
 .idea
-.pytest_cache
 *cfg
 
 **/__pycache__
+/usr/local/lib/python3.10/site-packages/__pycache__
 **/*.pyc
 **/*.pyo
 **/*.pyd
@@ -24,4 +26,4 @@ coverage.xml
 .git
 .mypy_cache
 .pytest_cache
-.hypothesis
+.ruff_cache
