@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
-from app import SERVICE_CODE
+from app import SERVICE_CODE, VERSION
+from app.log import Log
 from app.main import app
 from app.dependencies import DEFAULT_X_TOKEN
 
@@ -11,8 +12,8 @@ def test_read_items():
     response = client.get("/items", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
-        "code": int(str(SERVICE_CODE) + "200"),
-        "message": "API response success",
+        "code": int(f"{SERVICE_CODE}200"),
+        "message": f"API Response Success ({VERSION})" if Log.is_debug_enable() else "API Response Success",
         "result": {
             "plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}
         },
@@ -25,8 +26,8 @@ def test_read_item():
     response = client.get(f"/items/{item_id}", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
-        "code": int(str(SERVICE_CODE) + "200"),
-        "message": "API response success",
+        "code": int(f"{SERVICE_CODE}200"),
+        "message": f"API Response Success ({VERSION})" if Log.is_debug_enable() else "API Response Success",
         "result": {
             "name": "Portal Gun",
             "item_id": "gun"
@@ -40,8 +41,8 @@ def test_update_item():
     response = client.put(f"/items/{item_id}", headers={"x-token": DEFAULT_X_TOKEN})
     assert response.status_code == 200
     assert response.json() == {
-        "code": int(str(SERVICE_CODE) + "200"),
-        "message": "API response success",
+        "code": int(f"{SERVICE_CODE}200"),
+        "message": f"API Response Success ({VERSION})" if Log.is_debug_enable() else "API Response Success",
         "result": {
             "item_id": "plumbus",
             "name": "The great Plumbus"

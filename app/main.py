@@ -1,75 +1,17 @@
 import logging
 import os
-import sys
 from contextlib import asynccontextmanager
-from pathlib import Path
 
-import yaml
 from fastapi import Depends, FastAPI, Request
-from loguru import logger
 from starlette.responses import JSONResponse
 from uvicorn import Config, Server
 
+from app import conf, LOG_LEVEL, VERSION, GIT_BRANCH, GIT_REVISION, GIT_SHORT_REVISION, BUILD_DATE
 from app.dependencies import get_token_header
 from app.exceptions import CustomHTTPError
 from app.internal import admin
+from app.log import setup_logging
 from app.routers import items, users
-from app.version import get_version_info, write_version_py
-
-
-def read_config(conf_path: str = 'config.yaml') -> dict[str, str]:
-    config: dict[str, str] = yaml.load(Path(conf_path).resolve().open('r', encoding='utf-8'), Loader=yaml.FullLoader)
-    required_config = ['PORT', 'LOG']
-    if config is None:
-        sys.exit(f"Set {required_config} config.yaml")
-    return config
-
-
-write_version_py(file_name='version_info.py')
-VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
-conf: dict[str, str] = read_config(conf_path='config.yaml')
-LOG_LEVEL: str = logging.getLevelName(conf['LOG']['LEVEL'])  # type: ignore
-JSON_LOGS: bool = True if os.environ.get("JSON_LOGS", "0") == "1" else False
-
-
-class InterceptHandler(logging.Handler):
-    def emit(self, record):
-        # Get corresponding Loguru level if it exists
-        try:
-            level = logger.level(record.levelname).name
-        except ValueError:
-            level = record.levelno
-
-        # Find caller from where originated the logged message
-        frame, depth = logging.currentframe(), 2
-        while frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back
-            depth += 1
-
-        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
-
-
-def setup_logging():
-    # intercept everything at the root logger
-    logging.root.handlers = [InterceptHandler()]
-    logging.root.setLevel(LOG_LEVEL)
-
-    # remove every other logger's handlers
-    # and propagate to root logger
-    for name in logging.root.manager.loggerDict.keys():
-        logging.getLogger(name).handlers = []
-        logging.getLogger(name).propagate = True
-
-    # configure loguru
-    logger.configure(handlers=[{"sink": sys.stdout, "serialize": JSON_LOGS}])
-    if conf['LOG']['SAVE'] == 1:
-        logger.add(
-            Path(conf['LOG']['PATH']) / "{time:YYYY}" / "{time:MM}" / "{time:YYYYMMDD}_info.log",
-            level=LOG_LEVEL,
-            rotation=conf['LOG']['ROTATION'],
-            retention=conf['LOG']['RETENTION'],
-            compression=conf['LOG']['COMPRESSION']
-        )
 
 
 def check_env_exist() -> None:

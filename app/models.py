@@ -4,8 +4,9 @@ from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from app import SERVICE_CODE
+from app import SERVICE_CODE, VERSION
 from app.database import Base
+from app.log import Log
 
 
 class User(Base):
@@ -34,7 +35,7 @@ class Item(Base):
 
 class APIResponseModel(BaseModel):
     """기본 API 응답 포맷 by AIP Restful API 디자인 가이드"""
-    code: int = int(str(SERVICE_CODE) + "200")
-    message: str = "API response success"
+    code: int = int(f"{SERVICE_CODE}200")
+    message: str = f"API Response Success ({VERSION})" if Log.is_debug_enable() else "API Response Success"
     result: dict[str, Any] = {}
     description: str = ""
