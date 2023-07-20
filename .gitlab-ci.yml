@@ -47,6 +47,11 @@ type-checker-lint-test-job:
   script:
     - mypy .
 
+pyright-lint-test-job:
+  stage: test
+  script:
+    - pyright ./
+
 deploy-gitlab-job:
   image: docker:23.0.1
   stage: deploy

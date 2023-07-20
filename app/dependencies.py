@@ -26,7 +26,7 @@ async def get_token_header(x_token: Annotated[str, Header()]):
         )
 
 
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)  # type: ignore
 
 
 def get_db():
