@@ -2,11 +2,13 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Request
+import uvicorn
+from fastapi import Depends, FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse
-from uvicorn import Config, Server
 
-from app import conf, LOG_LEVEL, VERSION, GIT_BRANCH, GIT_REVISION, GIT_SHORT_REVISION, BUILD_DATE
+from app import conf, LOG_LEVEL, VERSION, GIT_BRANCH, GIT_REVISION, GIT_SHORT_REVISION, BUILD_DATE, SERVICE_CODE
 from app.dependencies import get_token_header
 from app.exceptions import CustomHTTPError
 from app.internal import admin
@@ -58,35 +60,44 @@ app.include_router(
 )
 
 
-@app.exception_handler(CustomHTTPError)
-def badrequest_handler(request: Request, exc: CustomHTTPError):
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return JSONResponse(
         status_code=200,
-        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
+        content={
+            "code": int(str(SERVICE_CODE) + str(exc.status_code)),
+            "message": f"{exc.detail}",
+            "result": {
+                "headers": exc.headers
+            }
+        }
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=200,
+        content={
+            "code": int(str(SERVICE_CODE) + str(status.HTTP_422_UNPROCESSABLE_ENTITY)),
+            "message": f"유효하지 않은 요청값 ({exc.errors()[0]['msg']}), "
+                       f"{(exc.errors()[0]['loc'][0], exc.errors()[0]['loc'][1])}을 확인해주세요.",
+            "result": {
+                "body": exc.body
+            }
+        }
     )
 
 
 @app.exception_handler(CustomHTTPError)
-def unauthorized_handler(request: Request, exc: CustomHTTPError):
+async def custom_exception_handler(request: Request, exc: CustomHTTPError):
     return JSONResponse(
         status_code=200,
-        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
-    )
-
-
-@app.exception_handler(CustomHTTPError)
-async def forbidden_handler(request: Request, exc: CustomHTTPError):
-    return JSONResponse(
-        status_code=200,
-        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
-    )
-
-
-@app.exception_handler(CustomHTTPError)
-def notfound_handler(request: Request, exc: CustomHTTPError):
-    return JSONResponse(
-        status_code=200,
-        content={"code": exc.code, "message": f"{exc.message}", "result": exc.result}
+        content={
+            "code": int(exc.code),
+            "message": f"{exc.message}",
+            "result": exc.result
+        }
     )
 
 
@@ -114,23 +125,14 @@ async def info():
     }
 
 
+# setup logging last, to make sure no library overwrites it
+# (they shouldn't, but it happens)
+setup_logging()
+
 if __name__ == "__main__":
     if 'PORT' in conf.keys():
         port = int(conf['PORT'])
     else:
         port = 8000
 
-    server = Server(
-        Config(
-            "main:app",
-            host="0.0.0.0",
-            port=port,
-            log_level=LOG_LEVEL,
-        ),
-    )
-
-    # setup logging last, to make sure no library overwrites it
-    # (they shouldn't, but it happens)
-    setup_logging()
-    # uvicorn.run(app=app, host="0.0.0.0", port=8000, log_level=LOG_LEVEL)
-    server.run()
+    uvicorn.run(app="main:app", host="0.0.0.0", port=port, log_level=LOG_LEVEL)
