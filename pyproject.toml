@@ -35,38 +35,39 @@ classifiers = [
     "Intended Audience :: Developers"
 ]
 dependencies = [
-    "anyio==3.6.2",
-    "click==8.1.3",
+    "annotated-types==0.5.0",
+    "anyio==3.7.1",
+    "click==8.1.7",
     "colorama==0.4.6",
-    "fastapi==0.95.2",
-    "greenlet==2.0.2",
+    "exceptiongroup==1.1.3",
+    "fastapi==0.103.1",
     "h11==0.14.0",
     "idna==3.4",
-    "loguru==0.7.0",
-    "pydantic==1.10.7",
-    "PyYAML==6.0",
+    "loguru==0.7.1",
+    "pydantic==2.3.0",
+    "pydantic_core==2.6.3",
+    "PyYAML==6.0.1",
     "sniffio==1.3.0",
-    "SQLAlchemy==2.0.13",
     "starlette==0.27.0",
     "toml==0.10.2",
-    "typing_extensions==4.5.0",
-    "uvicorn==0.22.0",
+    "typing_extensions==4.7.1",
+    "uvicorn==0.23.2",
     "win32-setctime==1.1.0"
 ]
 
 [project.optional-dependencies]
 test = [
-    "pytest >= 7.3.1",
+    "pytest >= 7.4.1",
     "httpx >= 0.24.0"
 ]
 lint = [
-    "mypy == 1.3.0",
-    "ruff >= 0.0.278",
-    "pyright >= 1.1.316"
+    "mypy==1.5.1",
+    "ruff==0.0.278",
+    "pyright==1.1.325"
 ]
 
 [tool.setuptools]
-py-modules = ["app"]    #TODO: 패키징할 패키지 선언 (현재는 MSA 구조인 app을 패키지 디렉토리로 선언)
+py-modules = ["app"]
 
 
 [tool.ruff]
@@ -81,7 +82,8 @@ exclude = [
     'venv',
     'tests',
     'build',
-    'dist'
+    'dist',
+    './app/__init__.py'
 ]
 target-version = "py39"
 [tool.ruff.mccabe]
@@ -93,7 +95,7 @@ plugins = [
     'pydantic.mypy'
 ]
 python_version = "3.9"
-follow_imports = "silent"
+follow_imports = "skip"
 warn_redundant_casts = true
 warn_unused_ignores = false # true시 ignore 처리 error로 뜨게 함
 disallow_any_generics = true
@@ -111,7 +113,6 @@ exclude = [
     'tests',
     'build',
     'dist',
-    '^app\\src\\keyword_extraction\\tf_isf.py$'
 ]
 [tool.pydantic-mypy]
 init_forbid_extra = true
@@ -143,10 +144,9 @@ exclude = [
     'dist',
     'pypi',
     'logs',
-    'app/src/keyword_extraction/tf-isf'
 ]
 defineConstant = { DEBUG = true }
 reportMissingImports = true
 reportMissingTypeStubs = false
-
+typeCheckingMode = "basic"
 pythonVersion = "3.9"

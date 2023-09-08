@@ -6,35 +6,26 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Path, Body, status
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 
-from app import crud, SERVICE_CODE
-from app.dependencies import get_db
+from app import SERVICE_CODE
 from app.dependencies import get_token_header
-from app.exceptions import CustomHTTPError
+from app.docs.items import create_item_examples
 from app.models import APIResponseModel
+from app.src.exception.service import SampleServiceError
+
+fake_items_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
 
 router = APIRouter(
     prefix="/items",
     tags=["items"],
     dependencies=[Depends(get_token_header)],
-    responses={404: {"description": "Not found"}},
 )
-
-fake_items_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
 
 
 # 1. mock data를 사용하는 경우
 @router.get("", response_model=APIResponseModel, response_class=JSONResponse)
 async def read_items():
     return {"result": fake_items_db}
-
-
-# 2. DB를 사용하는 경우
-@router.get("", response_model=APIResponseModel, response_class=JSONResponse)
-async def read_items_from_db(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return {"result": items}
 
 
 # TODO: Swagger에서 API를 쉽게 파악하기 위해 API 및 parameter에 대한 Query 설명 달기
@@ -47,7 +38,7 @@ async def read_item(
         )
 ):
     if item_id not in fake_items_db.keys():
-        raise CustomHTTPError(
+        raise SampleServiceError(
             code=int(str(SERVICE_CODE) + str(status.HTTP_404_NOT_FOUND)),
             message="Item not found", result={}
         )
@@ -72,7 +63,7 @@ async def update_item(
         )
 ):
     if item_id != "plumbus":
-        raise CustomHTTPError(
+        raise SampleServiceError(
             code=int(str(SERVICE_CODE) + str(status.HTTP_403_FORBIDDEN)),
             message="You can only update the item: plumbus", result={}
         )
@@ -85,11 +76,7 @@ async def create_item(
             title="item name",
             description="아이템 업데이트를 위한 아이템명 설정",
             media_type="application/json",
-            example={
-                "name": "apple",
-                "status": "in stock",
-                "stock": 10
-            },
+            examples=create_item_examples,  # type: ignore
         )
 ):
     return {"result": {"item": item}}

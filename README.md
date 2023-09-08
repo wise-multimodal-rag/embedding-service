@@ -1,8 +1,8 @@
 # Python FastAPI Template
 
 ![PythonVersion](https://img.shields.io/badge/python-3.9.13-blue)
-![FastAPIVersion](https://img.shields.io/badge/fastapi-0.95.2-yellowgreen)
-![loguru](https://img.shields.io/badge/loguru-0.7.0-orange)
+![FastAPIVersion](https://img.shields.io/badge/fastapi-0.103.1-yellowgreen)
+![loguru](https://img.shields.io/badge/loguru-0.7.1-orange)
 
 ### DE팀 전용 FastAPI 개발 템플릿 
 
