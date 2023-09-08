@@ -4,14 +4,12 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-import toml
-
-pyproject_info = toml.load(Path('pyproject.toml').open('r', encoding='utf-8'))
-VERSION = pyproject_info['project']['version']
-ISRELEASED = False
-
-
+import app
+from app import MAJOR_VERSION, ISRELEASED
 # Return the git revision as a string (local git information)
+from app.src import config
+
+
 def git_version():
     def _minimal_ext_cmd(cmd):
         # construct minimal environment
@@ -53,7 +51,7 @@ def make_version_info():
     # Adding the git rev number needs to be done inside write_version_py(),
     # otherwise the import of numpy.version messes up the build under Python 3.
     work_dir = Path.cwd()
-    FULLVERSION = VERSION
+    FULLVERSION = MAJOR_VERSION
     if os.path.exists(Path(work_dir) / '.git'):  # HOME/.git directory
         GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = git_version()
     else:
@@ -63,12 +61,14 @@ def make_version_info():
         FULLVERSION += f'.{GIT_SHORT_REVISION}'
 
     BUILD_DATE = build_date()
+    SERVICE = config.SERVICE.value
 
-    return FULLVERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
+    return SERVICE, FULLVERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 
 
 def write_version_py(file_name='version_info.py'):
     info = """\
+service: str = '{service}'
 version: str = '{version}'
 git_branch: str = '{git_branch}'
 git_revision: str = '{git_revision}'
@@ -76,43 +76,14 @@ git_short_revision: str = '{git_short_revision}'
 build_date: str = '{build_date}'
 """
 
-    FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = make_version_info()
+    SERVICE, FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = make_version_info()
     if GIT_BRANCH.lower() == 'unknown' or GIT_REVISION.lower() == 'unknown' or GIT_SHORT_REVISION.lower() == 'unknown':
         logging.warning("Unable to get git version information. Set to 'Unknown'")
     else:
         logging.info("Complete writing version, git info, build date on 'version_info.py'. Check it.")
     version_info_path = Path(file_name).open(mode='w')
     version_info_path.write(info.format(
-        version=FULL_VERSION,
-        git_branch=GIT_BRANCH,
-        git_revision=GIT_REVISION,
-        git_short_revision=GIT_SHORT_REVISION,
-        build_date=BUILD_DATE,
-    ))
-
-
-def write_version_py_gitlab_ci(file_name='version_info.py'):
-    info = """\
-version: str = '{version}'
-git_branch: str = '{git_branch}'
-git_revision: str = '{git_revision}'
-git_short_revision: str = '{git_short_revision}'
-build_date: str = '{build_date}'
-"""
-    FULL_VERSION = VERSION
-    GIT_REVISION = os.getenv('CI_COMMIT_SHA', 'UNKNOWN')
-    GIT_SHORT_REVISION = os.getenv('CI_COMMIT_SHORT_SHA', 'UNKNOWN')
-    if not ISRELEASED:
-        FULL_VERSION += f'.{GIT_SHORT_REVISION}'
-    GIT_BRANCH = os.getenv('CI_COMMIT_BRANCH', 'UNKNOWN')
-    BUILD_DATE = build_date()
-
-    if GIT_BRANCH.lower() == 'unknown' or GIT_REVISION.lower() == 'unknown' or GIT_SHORT_REVISION.lower() == 'unknown':
-        logging.warning("Unable to get git version information. Set to 'Unknown'")
-    else:
-        logging.info("Complete writing version, git info, build date on 'version_info.py'. Check it.")
-    version_info_path = Path(file_name).open(mode='w')
-    version_info_path.write(info.format(
+        service=SERVICE,
         version=FULL_VERSION,
         git_branch=GIT_BRANCH,
         git_revision=GIT_REVISION,
@@ -123,14 +94,17 @@ build_date: str = '{build_date}'
 
 def get_version_info():
     BUILD_DATE = build_date()
-    FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown"
+    SERVICE, FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown", \
+                                                                          "Unknown"
 
     try:
         import version_info  # type: ignore
     except ImportError as ie:
         logging.error(f"{ie}: Check if 'app.version_info' exists.")
-        return FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
+        return SERVICE, FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 
+    if hasattr(version_info, 'service'):
+        SERVICE = version_info.service
     if hasattr(version_info, 'version'):
         FULL_VERSION = version_info.version
     if hasattr(version_info, 'git_branch'):
@@ -142,19 +116,15 @@ def get_version_info():
     if hasattr(version_info, 'build_date'):
         BUILD_DATE = version_info.build_date
 
-    return FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
+    return SERVICE, FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 
 
 def set_release_mode():
-    global ISRELEASED
-    ISRELEASED = True
+    app.ISRELEASED = True
 
 
-if __name__ == '__main__':
-    # TODO: release mode
-    # set_release_mode()
+write_version_py(file_name='version_info.py')
+SERVICE, VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
 
-    # GitLab CI Deploy Job에서 version_info.py 작성을 위한 main
-    filename = 'version_info.py'
-    print("Create a version file... {}".format(filename))
-    write_version_py_gitlab_ci(filename)
+if __name__ == "__main__":
+    write_version_py(file_name='version_info.py')

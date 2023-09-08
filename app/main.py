@@ -1,33 +1,23 @@
 import logging
 import os
+import sys
+import time
 from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse
 
-from app import conf, LOG_LEVEL, VERSION, GIT_BRANCH, GIT_REVISION, GIT_SHORT_REVISION, BUILD_DATE, SERVICE_CODE
+from app import SERVICE_CODE, check_env_exist, LOG_LEVEL, MAJOR_VERSION, port, setup_logging, JSON_LOGS, conf
 from app.dependencies import get_token_header
-from app.exceptions import CustomHTTPError
 from app.internal import admin
-from app.log import setup_logging
 from app.routers import items, users
-
-
-def check_env_exist() -> None:
-    """
-    설정이 필요한 환경변수가 세팅되어있는지 체크
-    TODO: 필요한 환경변수가 없을 경우, 프로그램 종료
-
-    Returns: None
-
-    """
-    env_list = ['DEFAULT_TOKEN']  # TODO: 확인할 환경변수 설정
-    for env in env_list:
-        if env not in os.environ.keys():
-            logging.warning(f"set {repr(env)} environment variable.")
+from app.src.config import Description, Service
+from app.src.exception.service import SampleServiceError
+from app.version import SERVICE, GIT_REVISION, GIT_BRANCH, BUILD_DATE, GIT_SHORT_REVISION
 
 
 @asynccontextmanager
@@ -44,20 +34,31 @@ async def lifespan(lifespan_app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    title="Python FastAPI Template",
-    description="DE Team Python FastAPI Template",
-    version=VERSION,
+    title=f"{SERVICE} Service",
+    description=Description.DESCRIPTION,
+    version=f"{MAJOR_VERSION}.{GIT_SHORT_REVISION}",
     dependencies=[Depends(get_token_header)]
 )
+app.logger = setup_logging(conf=conf, json_logs=JSON_LOGS, log_level=LOG_LEVEL)  # type: ignore
 
-app.include_router(users.router)
-app.include_router(items.router)
-app.include_router(
-    admin.router,  # app/internal/admin.py 원본을 수정하지 않고 선언 가능
-    prefix="/admin",
-    tags=["admin"],
-    responses={418: {"description": "I'm a teapot"}},
-)
+if SERVICE == Service.SAMPLE.value:
+    app.include_router(users.router)
+    app.include_router(items.router)
+    app.include_router(
+        admin.router,  # app/internal/admin.py 원본을 수정하지 않고 선언 가능
+        prefix="/admin",
+        tags=["admin"],
+        responses={418: {"description": "I'm a teapot"}},
+    )
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = f"{process_time:.6f} sec"
+    return response
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -79,9 +80,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return JSONResponse(
         status_code=200,
         content={
-            "code": int(str(SERVICE_CODE) + str(status.HTTP_422_UNPROCESSABLE_ENTITY)),
-            "message": f"유효하지 않은 요청값 ({exc.errors()[0]['msg']}), "
-                       f"{(exc.errors()[0]['loc'][0], exc.errors()[0]['loc'][1])}을 확인해주세요.",
+            "code": int(f"{SERVICE_CODE}{status.HTTP_422_UNPROCESSABLE_ENTITY}"),
+            "message": f"Invalid Request: {exc.errors()[0]['msg']} (type: {exc.errors()[0]['type']}), "
+                       f"Check {(exc.errors()[0]['loc'])}",
             "result": {
                 "body": exc.body
             }
@@ -89,8 +90,22 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-@app.exception_handler(CustomHTTPError)
-async def custom_exception_handler(request: Request, exc: CustomHTTPError):
+@app.exception_handler(ValidationError)
+async def request_validation_exception_handler(request: Request, exc: ValidationError):
+    return JSONResponse(
+        status_code=200,
+        content={
+            "code": int(str(SERVICE_CODE) + str(status.HTTP_422_UNPROCESSABLE_ENTITY)),
+            "message": "pydantic model ValidationError 발생",
+            "result": {
+                "body": exc.errors()
+            }
+        }
+    )
+
+
+@app.exception_handler(SampleServiceError)
+async def custom_exception_handler(request: Request, exc: SampleServiceError):
     return JSONResponse(
         status_code=200,
         content={
@@ -107,16 +122,24 @@ async def root():
 
 
 @app.get("/health")
-async def health():
-    return {"status": "UP"}
+def health():
+    return {
+        "status": "UP",
+        "service": SERVICE,
+        "version": f"{MAJOR_VERSION}.{GIT_SHORT_REVISION}",
+        "home_path": os.getcwd(),
+        "command": f"{' '.join(sys.argv)}",
+        "build_date": BUILD_DATE,
+    }
 
 
 @app.get("/info")
 async def info():
-    version: str = VERSION
+    version: str = f"{MAJOR_VERSION}.{GIT_SHORT_REVISION}"
     if 'Unknown' in version:
         version = version.split('.')[0]
     return {
+        "service": SERVICE,
         "version": version,
         "git_branch": GIT_BRANCH,
         "git_revision": GIT_REVISION,
@@ -127,12 +150,7 @@ async def info():
 
 # setup logging last, to make sure no library overwrites it
 # (they shouldn't, but it happens)
-setup_logging()
 
-if __name__ == "__main__":
-    if 'PORT' in conf.keys():
-        port = int(conf['PORT'])
-    else:
-        port = 8000
-
+if __name__ == '__main__':
+    """IDE 환경에서 debug 할때 사용 바람 - 로그 설정 overriding 순서 때문"""
     uvicorn.run(app="main:app", host="0.0.0.0", port=port, log_level=LOG_LEVEL)
