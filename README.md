@@ -49,7 +49,18 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
 
 
 ### 3. Extra Setting
-- ❗ 도커 빌드 및 실행할 경우, `version.py` 실행 사전 작업 필수 ❗    
+- ❗ 실행 전 `.env` 파일에 필요한 환경변수 주입 ❗ 
+  - 환경변수 없이도 동작하지만 디폴트값으로 설정돼서 동작하기 때문에 환경변수 설정 권장
+  - `.env` 로그 관련 설정 작성
+    - > [loguru](https://github.com/Delgan/loguru) 사용하여 로그 세팅
+    - `SAVE`: 로그 파일 저장 여부 (1 = 저장, 0 = 저장하지 않음)
+    - `ROTATION`: 매일 `mm:ss`시에 새로운 로그 파일 생성
+    - `RETENTION`: 설정한 시간 이후에 제거 (ex. "1 month 2 weeks", "10h")
+    - `COMPRESSION`: 압축 형식 ("gz", "bz2", "xz", "lzma", "tar", "tar.gz", "tar.bz2", "tar.xz", "zip" 등의 형식 지원)
+    - `ROTATION`, `RETENTION`, `COMPRESSION` 모두 loguru에 있는 파라미터로 자세한 파라미터 정보는 [공식 문서](https://loguru.readthedocs.io/en/stable/api/logger.html#file:~:text=See%20datetime.datetime-,The%20time%20formatting,-To%20use%20your) 확인
+    - `PATH`: 디렉토리명까지 설정, (default = `YYYY/MM/*.log` 디렉토리 생성)
+- ❗ 도커 빌드 및 실행할 경우, `version.py` 실행 사전 작업 필수 ❗
+  (없을 경우에도 정상작동 되지만 필요한 정보를 볼 수 없음)
   👉 `version_info.py` 정보 생성 과정
   ```python
   service: str = 'FastAPI Sample'
@@ -63,14 +74,6 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
    - project 메타데이터 작성 (_name_, _version_, ... etc)
    - 의존성 작성: _dependencies_
    - 개발 의존성 작성: _project.optional-dependencies_
-- `.env` 로그 관련 설정 작성
-  > [loguru](https://github.com/Delgan/loguru) 사용하여 로그 세팅
-  - `SAVE`: 로그 파일 저장 여부 (1 = 저장, 0 = 저장하지 않음)
-  - `ROTATION`: 매일 `mm:ss`시에 새로운 로그 파일 생성
-  - `RETENTION`: 설정한 시간 이후에 제거 (ex. "1 month 2 weeks", "10h")
-  - `COMPRESSION`: 압축 형식 ("gz", "bz2", "xz", "lzma", "tar", "tar.gz", "tar.bz2", "tar.xz", "zip" 등의 형식 지원)
-  - `ROTATION`, `RETENTION`, `COMPRESSION` 모두 loguru에 있는 파라미터로 자세한 파라미터 정보는 [공식 문서](https://loguru.readthedocs.io/en/stable/api/logger.html#file:~:text=See%20datetime.datetime-,The%20time%20formatting,-To%20use%20your) 확인
-  - `PATH`: 디렉토리명까지 설정, (default = `YYYY/MM/*.log` 디렉토리 생성)
 
 
 ### 4. Run

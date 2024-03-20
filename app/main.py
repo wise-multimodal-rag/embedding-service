@@ -24,7 +24,7 @@ from app.version import GIT_REVISION, GIT_BRANCH, BUILD_DATE, GIT_SHORT_REVISION
 @asynccontextmanager
 async def lifespan(lifespan_app: FastAPI):
     # startup event
-    logging.info(f"{get_now_date()=}")
+    logging.info(f"uptime: {get_now_date()}")
     logging.debug(f"Working Directory: {repr(os.getcwd())}")
     logging.info(f"Start {settings.SERVICE_NAME} {VERSION}")
     yield
