@@ -1,10 +1,10 @@
 # Python FastAPI Template
 
 ![PythonVersion](https://img.shields.io/badge/python-3.9.13-blue)
-![FastAPIVersion](https://img.shields.io/badge/fastapi-0.103.1-yellowgreen)
-![loguru](https://img.shields.io/badge/loguru-0.7.1-orange)
+![FastAPIVersion](https://img.shields.io/badge/fastapi-0.110.0-yellowgreen)
+![loguru](https://img.shields.io/badge/loguru-0.7.2-orange)
 
-### DE팀 전용 FastAPI 개발 템플릿 
+### AI플랫폼팀 전용 FastAPI 개발 템플릿 
 
 > API 명세는 와이즈넛 [Restful API 디자인 가이드](https://docs.google.com/document/d/1tSniwfrVaTIaTT4MxhBRAmv-S_ECcoSFAXlYrsg4K0Y/edit#heading=h.60fu2rc04bck)를 따른다.
 
@@ -14,7 +14,7 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
 3. setuptools를 사용한 의존성 (`pyproject.toml`으로 한 번에 관리)
 4. 내부망 환경 구성
 5. 도커 환경 구성 (개발 및 배포용 Dockerfile 구성)
-6. gitlab-ci로 _build, unit test (pytest), lint test (flake8), deploy_ 수행
+6. gitlab-ci로 _build, unit test (pytest), lint test (ruff, mypy, pyright), deploy_ 수행
 
 ## Getting started
 
@@ -52,27 +52,25 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
 - ❗ 도커 빌드 및 실행할 경우, `version.py` 실행 사전 작업 필수 ❗    
   👉 `version_info.py` 정보 생성 과정
   ```python
-  version: str = 'v1.9e33312'
-  git_branch: str = 'minimal-refactoring'
-  git_revision: str = '9e333123aa56235bb0dc81f0a11e53d204cbe68f'
-  git_short_revision: str = '9e33312'
-  build_date: str = '2023-05-02 11:09:51'
+  service: str = 'FastAPI Sample'
+  version: str = 'v1.6a6b8b0'
+  git_branch: str = '21-refectoring-intialize'
+  git_revision: str = '6a6b8b01cffcb7519013317f052dd104e1c39e56'
+  git_short_revision: str = '6a6b8b0'
+  build_date: str = '2024-03-20 09:16:40'
   ```
 - `pyproject.toml` 작성 (참고: [Declaring project metadata](https://packaging.python.org/en/latest/specifications/declaring-project-metadata/))
    - project 메타데이터 작성 (_name_, _version_, ... etc)
    - 의존성 작성: _dependencies_
    - 개발 의존성 작성: _project.optional-dependencies_
-- `config.yaml` 파일 작성
-  - `PORT`: fastapi server port
-  - `LOG`: [loguru](https://github.com/Delgan/loguru) 사용하여 로그 세팅
-    - `SAVE`: 로그 파일 저장 여부 (1 = 저장, 0 = 저장하지 않음)
-    - `ROTATION`: 매일 `mm:ss`시에 새로운 로그 파일 생성
-    - `RETENTION`: 설정한 시간 이후에 제거 (ex. "1 month 2 weeks", "10h")
-    - `COMPRESSION`: 압축 형식 ("gz", "bz2", "xz", "lzma", "tar", "tar.gz", "tar.bz2", "tar.xz", "zip" 등의 형식 지원)
-    - `ROTATION`, `RETENTION`, `COMPRESSION` 모두 loguru에 있는 파라미터로 자세한 파라미터 정보는 [공식 문서](https://loguru.readthedocs.io/en/stable/api/logger.html#file:~:text=See%20datetime.datetime-,The%20time%20formatting,-To%20use%20your) 확인
-    - `PATH`: 디렉토리명까지 설정, (default = `YYYY/MM/*.log` 디렉토리 생성)
-- **Project Major Version**은 `pyproject.toml`의 [project.version]에서 설정한다.
-  - 해당 설정은 project version, FastAPI version 설정에 영향을 미친다.
+- `.env` 로그 관련 설정 작성
+  > [loguru](https://github.com/Delgan/loguru) 사용하여 로그 세팅
+  - `SAVE`: 로그 파일 저장 여부 (1 = 저장, 0 = 저장하지 않음)
+  - `ROTATION`: 매일 `mm:ss`시에 새로운 로그 파일 생성
+  - `RETENTION`: 설정한 시간 이후에 제거 (ex. "1 month 2 weeks", "10h")
+  - `COMPRESSION`: 압축 형식 ("gz", "bz2", "xz", "lzma", "tar", "tar.gz", "tar.bz2", "tar.xz", "zip" 등의 형식 지원)
+  - `ROTATION`, `RETENTION`, `COMPRESSION` 모두 loguru에 있는 파라미터로 자세한 파라미터 정보는 [공식 문서](https://loguru.readthedocs.io/en/stable/api/logger.html#file:~:text=See%20datetime.datetime-,The%20time%20formatting,-To%20use%20your) 확인
+  - `PATH`: 디렉토리명까지 설정, (default = `YYYY/MM/*.log` 디렉토리 생성)
 
 
 ### 4. Run
@@ -169,11 +167,8 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
 
 
 ## 🚀 TODO
-- [ ] **monolith** 개발 (현재 디렉터리만 생성되어있어 사용 불가능) 
 - [ ] DB 적용한 API 동작 테스트
 - [ ] Restful API 디자인 가이드: API token을 JWT token으로 설정
 - [ ] Restful API 디자인 가이드: filtering, sorting, searching 기능을 query string으로 적용하기
 - [ ] Restful API 디자인 가이드: 버전 관리 (버전별 URL 표기)
 - [ ] Restful API 디자인 가이드: 링크 처리시 HATEOS를 이용한 링크 처리
-- [ ] 에러 처리
-- [ ] ELK 로그

@@ -1,13 +1,11 @@
+# Return the git revision as a string (local git information)
 import logging
 import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
 
-import app
-from app import MAJOR_VERSION, ISRELEASED
-# Return the git revision as a string (local git information)
-from app.src import config
+from app.config import settings
 
 
 def git_version():
@@ -42,7 +40,7 @@ def git_version():
     return GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH
 
 
-def build_date():
+def get_now_date():
     BUILD_DATE = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return BUILD_DATE
 
@@ -51,8 +49,9 @@ def make_version_info():
     # Adding the git rev number needs to be done inside write_version_py(),
     # otherwise the import of numpy.version messes up the build under Python 3.
     work_dir = Path.cwd()
-    FULLVERSION = MAJOR_VERSION
-    if os.path.exists(Path(work_dir) / '.git'):  # HOME/.git directory
+    ISRELEASED = False
+    FULLVERSION = settings.MAJOR_VERSION
+    if Path(work_dir).joinpath('.git').exists():  # HOME/.git directory
         GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = git_version()
     else:
         GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown"
@@ -60,14 +59,14 @@ def make_version_info():
     if not ISRELEASED:
         FULLVERSION += f'.{GIT_SHORT_REVISION}'
 
-    BUILD_DATE = build_date()
-    SERVICE = config.SERVICE.value
+    BUILD_DATE = get_now_date()
+    SERVICE = settings.SERVICE_NAME
 
     return SERVICE, FULLVERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 
 
 def write_version_py(file_name='version_info.py'):
-    info = """\
+    version_info = """\
 service: str = '{service}'
 version: str = '{version}'
 git_branch: str = '{git_branch}'
@@ -82,7 +81,7 @@ build_date: str = '{build_date}'
     else:
         logging.info("Complete writing version, git info, build date on 'version_info.py'. Check it.")
     version_info_path = Path(file_name).open(mode='w')
-    version_info_path.write(info.format(
+    version_info_path.write(version_info.format(
         service=SERVICE,
         version=FULL_VERSION,
         git_branch=GIT_BRANCH,
@@ -93,18 +92,15 @@ build_date: str = '{build_date}'
 
 
 def get_version_info():
-    BUILD_DATE = build_date()
-    SERVICE, FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown", \
-                                                                          "Unknown"
+    BUILD_DATE = get_now_date()
+    FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown"
 
     try:
         import version_info  # type: ignore
     except ImportError as ie:
         logging.error(f"{ie}: Check if 'app.version_info' exists.")
-        return SERVICE, FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
+        return FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 
-    if hasattr(version_info, 'service'):
-        SERVICE = version_info.service
     if hasattr(version_info, 'version'):
         FULL_VERSION = version_info.version
     if hasattr(version_info, 'git_branch'):
@@ -116,15 +112,10 @@ def get_version_info():
     if hasattr(version_info, 'build_date'):
         BUILD_DATE = version_info.build_date
 
-    return SERVICE, FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
+    return FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
 
 
-def set_release_mode():
-    app.ISRELEASED = True
-
-
-write_version_py(file_name='version_info.py')
-SERVICE, VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
+VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE = get_version_info()
 
 if __name__ == "__main__":
     write_version_py(file_name='version_info.py')
