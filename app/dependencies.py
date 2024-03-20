@@ -6,12 +6,14 @@
 """
 from typing import Annotated
 
-from fastapi import Header
+from fastapi import Security
+from fastapi.security import APIKeyHeader
 
 from app import X_TOKEN
 from app.src.exception.service import TokenValidationError
 
+header_scheme = APIKeyHeader(name="x-token")
 
-async def get_token_header(x_token: Annotated[str, Header()]):
+async def get_token_header(x_token: Annotated[str, Security(header_scheme)]):
     if x_token != X_TOKEN:
         raise TokenValidationError(x_token)
