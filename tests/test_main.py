@@ -10,7 +10,7 @@ def test_root():
     response = client.get("/", headers={"x-token": settings.X_TOKEN})
     assert response.status_code == 200
     assert response.json()["title"] == app.title
-    assert response.json()["description"] == app.description
+    assert response.json()["summary"] == app.summary
     assert response.json()["version"] == app.version
     assert response.json()["docs_url"] == app.docs_url
 

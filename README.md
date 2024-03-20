@@ -4,7 +4,7 @@
 ![FastAPIVersion](https://img.shields.io/badge/fastapi-0.110.0-yellowgreen)
 ![loguru](https://img.shields.io/badge/loguru-0.7.2-orange)
 
-### AI플랫폼팀 전용 FastAPI 개발 템플릿 
+## AI플랫폼팀 전용 FastAPI 개발 템플릿 
 
 > API 명세는 와이즈넛 [Restful API 디자인 가이드](https://docs.google.com/document/d/1tSniwfrVaTIaTT4MxhBRAmv-S_ECcoSFAXlYrsg4K0Y/edit#heading=h.60fu2rc04bck)를 따른다.
 
@@ -90,14 +90,7 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
   docker run -d --name python-fastapi-template -p 8000:8000 -e DEFAULT_X_TOKEN=fake-super-secret-token -e DEFAULT_TOKEN=default-token python-fastapi-template:0.1.5-dev
   ```
 
-### 📚 참고 사항 📚   
-- 해당 템플릿은 크게 **msa**와 **monlith** 두 가지로 나뉜다. (@TODO: monolith)
-- Default는 **msa**(`$HOME/app`)로 해당 템플릿을 그대로 사용하면 된다.
-- 📌 **monolith**를 사용할 경우, msa (`$HOME/app`, `$HOME/tests`)는 삭제하고 최상위 디렉터리인 monolith를 삭제 후 사용한다.
-- 📌 DB를 사용하지 않을 경우, 관련된 코드는 모두 삭제한다. (`crud.py`, `database.py`, `schemas.py` 등)
-
-
-## MSA
+## 📚 MSA
 > @tiangolo(FastAPI 개발자)가 제공하는 유형(ex. api, crud, 모델, 스키마)별로 파일을 구분하는 프로젝트 구조
 - 출처: https://fastapi.tiangolo.com/tutorial/bigger-applications/
 ```
@@ -163,7 +156,14 @@ Python FastAPI Template은 아래와 같은 특징을 갖고 있다.
 3. `python app/main.py` 실행
 
 
-## Monolith @TODO
+
+## 📚 참고 사항 📚   
+- 해당 템플릿은 크게 **msa**와 **monlith** 두 가지로 나뉜다. (@TODO: monolith)
+- Default는 **msa**(`$HOME/app`)로 해당 템플릿을 그대로 사용하면 된다.
+- 📌 **monolith**를 사용할 경우, msa (`$HOME/app`, `$HOME/tests`)는 삭제하고 최상위 디렉터리인 monolith를 삭제 후 사용한다.
+- 📌 DB를 사용하지 않을 경우, 관련된 코드는 모두 삭제한다. (`crud.py`, `database.py`, `schemas.py` 등)
+
+### Monolith @TODO
 > @tiangolo 가 제공하는 유형(예: api, crud, 모델, 스키마)별로 파일을 구분하는 프로젝트 구조는 범위가 적은 마이크로 서비스 또는 프로젝트에 적합하지만 많은 도메인이 있는 모놀리식에는 맞출 수 없다.
 > 더 확장 가능하고 진화할 수 있는 구조는 Netflix의 Dispatch 에서 영감을 얻었다.
 - 출처: https://github.com/zhanymkanov/fastapi-best-practices

@@ -2,19 +2,16 @@
 PUT, POST, GET 에 대한 다양한 API 예시를 작성해놨으니 참고해서 개발을 진행한다.
 되도록이면 Swagger에서 API를 쉽게 파악하기 위해 API 및 Body, Path, Query에 대한 설명을 작성한다.
 """
-from typing import Any
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Body, status
+from fastapi import APIRouter, Depends, Path, Body
 from fastapi.responses import JSONResponse
 
-from app.config import settings
 from app.dependencies import get_token_header
 from app.docs.items import create_item_examples, update_item_examples, get_item_examples
-from app.models import APIResponseModel
-from app.src.exception.service import SampleServiceError
-
-# mock data
-fake_items_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
+from app.models import APIResponseModel, CreateItemsRequestModel
+from app.src.items.items import load_mock_items, read_item_from_db, update_item_to_db
+from app.version import VERSION
 
 router = APIRouter(
     prefix="/items",
@@ -22,11 +19,19 @@ router = APIRouter(
     dependencies=[Depends(get_token_header)],
 )
 
+# resonse message 통일, 통일을 원하지 않을 경우, 아래 리턴값에 개별적으로 설정한다.
+response_success_msg = f"아이템 응답 성공 ({VERSION})"  # TODO: FastAPI의 데코레이터 기반 설정으로 변경
 
-# 1. mock data를 사용하는 경우
+
 @router.get("", response_model=APIResponseModel, response_class=JSONResponse)
 async def read_items():
-    return {"result": fake_items_db}
+    # mock data를 사용하는 경우. DB를 사용하는게 일반적임
+    fake_items_db = load_mock_items()
+    return {
+        "message": response_success_msg,
+        "result": fake_items_db,
+        "description": "아이템 로드 성공"
+    }
 
 
 # TODO: Swagger에서 API를 쉽게 파악하기 위해 API 및 parameter에 대한 Query 설명 달기
@@ -38,12 +43,12 @@ async def read_item(
             max_length=2048,
         )
 ):
-    if item_id not in fake_items_db.keys():
-        raise SampleServiceError(
-            code=int(str(settings.SERVICE_CODE) + str(status.HTTP_404_NOT_FOUND)),
-            message="Item not found", result={}
-        )
-    return {"result": {"name": fake_items_db[item_id]["name"], "item_id": item_id}}
+    item_name = read_item_from_db(item_id)
+    return {
+        "message": response_success_msg,
+        "result": {"name": item_name, "item_id": item_id},
+        "description": "특정 아이템 아이디로 아이템 로드 성공"
+    }
 
 
 @router.put(
@@ -63,21 +68,25 @@ async def update_item(
             max_length=2048,
         )
 ):
-    if item_id != "plumbus":
-        raise SampleServiceError(
-            code=int(str(settings.SERVICE_CODE) + str(status.HTTP_403_FORBIDDEN)),
-            message="You can only update the item: plumbus", result={}
-        )
-    return {"result": {"item_id": item_id, "name": "The great Plumbus"}}
+    item_name = update_item_to_db(item_id)
+    return {
+        "message": response_success_msg,
+        "result": {"item_id": item_id, "name": item_name},
+        "description": "아이템 업데이트 성공"
+    }
 
 
 @router.post("", response_model=APIResponseModel, response_class=JSONResponse)
 async def create_item(
-        item: dict[str, Any] = Body(
-            title="item name",
-            description="아이템 업데이트를 위한 아이템명 설정",
+        item: Annotated[CreateItemsRequestModel, Body(
+            title="아이템 업데이트를 위한 아이템명 설정",
+            description="아이템 이름, 상태, 재고 입력",
             media_type="application/json",
             openapi_examples=create_item_examples,  # type: ignore
-        )
+        )]
 ):
-    return {"result": {"item": item}}
+    return {
+        "message": response_success_msg,
+        "result": {"item": item},
+        "description": "아이템 생성 성공"
+    }
