@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]   # TODO: 프로젝트 메타데이터 작성 (되도록이면 main.py의 app과 동일한 name, version, description으로 작성하기)
 name = "python-fastapi-template"
-version = "v1"  # major 버전만 기입
+version = "v1"
 authors = [
     { name = "Seoyeon Park", email = "sally9476@wisenut.co.kr" }
 ]
@@ -18,7 +18,7 @@ maintainers = [
     { name = "Seoyeon Park", email = "sally9476@wisenut.co.kr" },
     { name = "Joongheon Jeong", email = "legagain@wisenut.co.kr" }
 ]
-description = "DE Team Python FastAPI Template"
+description = "AIP Team Python FastAPI Template"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
 keywords = ["python", "fastapi", "template"]
@@ -35,35 +35,35 @@ classifiers = [
     "Intended Audience :: Developers"
 ]
 dependencies = [
-    "annotated-types==0.5.0",
-    "anyio==3.7.1",
+    "annotated-types==0.6.0",
+    "anyio==4.3.0",
     "click==8.1.7",
     "colorama==0.4.6",
-    "exceptiongroup==1.1.3",
-    "fastapi==0.103.1",
+    "exceptiongroup==1.2.0",
+    "fastapi==0.110.0",
     "h11==0.14.0",
-    "idna==3.4",
-    "loguru==0.7.1",
-    "pydantic==2.3.0",
-    "pydantic_core==2.6.3",
+    "idna==3.6",
+    "loguru==0.7.2",
+    "pydantic==2.6.4",
+    "pydantic_core==2.16.3",
+    "pydantic-settings==2.2.1",
     "PyYAML==6.0.1",
-    "sniffio==1.3.0",
-    "starlette==0.27.0",
-    "toml==0.10.2",
-    "typing_extensions==4.7.1",
-    "uvicorn==0.23.2",
+    "sniffio==1.3.1",
+    "starlette==0.36.3",
+    "typing_extensions==4.10.0",
+    "uvicorn==0.28.1",
     "win32-setctime==1.1.0"
 ]
 
 [project.optional-dependencies]
 test = [
-    "pytest >= 7.4.1",
-    "httpx >= 0.24.0"
+    "pytest >= 8.1.1",
+    "httpx >= 0.27.0"
 ]
 lint = [
-    "mypy==1.5.1",
-    "ruff==0.0.278",
-    "pyright==1.1.325"
+    "mypy==1.9.0",
+    "ruff==0.3.3",
+    "pyright==1.1.354"
 ]
 
 [tool.setuptools]
@@ -71,7 +71,6 @@ py-modules = ["app"]
 
 
 [tool.ruff]
-ignore = ['W']
 line-length = 125
 exclude = [
     '.git',
@@ -86,9 +85,10 @@ exclude = [
     './app/__init__.py'
 ]
 target-version = "py39"
-[tool.ruff.mccabe]
+[tool.ruff.lint]
+ignore = ['W']
+[tool.ruff.lint.mccabe]
 max-complexity = 10
-
 
 [tool.mypy]
 plugins = [

@@ -7,12 +7,13 @@ from typing import Any
 from fastapi import APIRouter, Depends, Path, Body, status
 from fastapi.responses import JSONResponse
 
-from app import SERVICE_CODE
+from app.config import settings
 from app.dependencies import get_token_header
-from app.docs.items import create_item_examples
+from app.docs.items import create_item_examples, update_item_examples, get_item_examples
 from app.models import APIResponseModel
 from app.src.exception.service import SampleServiceError
 
+# mock data
 fake_items_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
 
 router = APIRouter(
@@ -32,14 +33,14 @@ async def read_items():
 @router.get("/{item_id}", response_model=APIResponseModel, response_class=JSONResponse)
 async def read_item(
         item_id: str = Path(
-            example="34567",
             description="Item ID",
+            openapi_examples=get_item_examples,  # type: ignore
             max_length=2048,
         )
 ):
     if item_id not in fake_items_db.keys():
         raise SampleServiceError(
-            code=int(str(SERVICE_CODE) + str(status.HTTP_404_NOT_FOUND)),
+            code=int(str(settings.SERVICE_CODE) + str(status.HTTP_404_NOT_FOUND)),
             message="Item not found", result={}
         )
     return {"result": {"name": fake_items_db[item_id]["name"], "item_id": item_id}}
@@ -58,13 +59,13 @@ async def update_item(
         item_id: str = Path(
             title="item_id",
             description="Item ID",
-            example="12345",
+            openapi_examples=update_item_examples,  # type: ignore
             max_length=2048,
         )
 ):
     if item_id != "plumbus":
         raise SampleServiceError(
-            code=int(str(SERVICE_CODE) + str(status.HTTP_403_FORBIDDEN)),
+            code=int(str(settings.SERVICE_CODE) + str(status.HTTP_403_FORBIDDEN)),
             message="You can only update the item: plumbus", result={}
         )
     return {"result": {"item_id": item_id, "name": "The great Plumbus"}}
@@ -76,7 +77,7 @@ async def create_item(
             title="item name",
             description="아이템 업데이트를 위한 아이템명 설정",
             media_type="application/json",
-            examples=create_item_examples,  # type: ignore
+            openapi_examples=create_item_examples,  # type: ignore
         )
 ):
     return {"result": {"item": item}}
