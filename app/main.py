@@ -35,8 +35,18 @@ async def lifespan(lifespan_app: FastAPI):
 app = FastAPI(
     lifespan=lifespan,
     title=f"{settings.SERVICE_NAME} Service",
-    description="""AI플랫폼팀 Python FastAPI Template""",
+    summary="AI플랫폼팀 Python FastAPI Template 🚀",
+    description="Markdown 형식으로 작성 가능하지만 개행 작성 필수\n"
+                "## Items\n"
+                "You can **read items**.\n"
+                "## Users\n"
+                "You will be able to:\n"
+                "* **Create users** (_not implemented_).\n"
+                "* **Read users** (_not implemented_).",
     version=VERSION,
+    license_info={
+        "name": "Wisenut"
+    },
     dependencies=[Depends(get_token_header)]
 )
 app.logger = setup_logging()  # type: ignore
@@ -118,7 +128,7 @@ async def custom_exception_handler(request: Request, exc: SampleServiceError):
 
 @app.get("/")
 async def root():
-    return {"title": app.title, "description": app.description, "version": app.version, "docs_url": app.docs_url}
+    return {"title": app.title, "summary": app.summary, "version": app.version, "docs_url": app.docs_url}
 
 
 @app.get("/health")

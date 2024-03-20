@@ -14,14 +14,23 @@ fake_users_db = [{"username": "Rick"}, {"username": "Morty"}]
 
 @router.get("/users", tags=["users"], response_model=APIResponseModel, response_class=JSONResponse)
 async def read_users():
-    return {"result": {"users": fake_users_db}}
+    return {
+        "result": {"users": fake_users_db},
+        "description": "사용자 가져오기 성공"
+    }
 
 
 @router.get("/users/me", tags=["users"], response_model=APIResponseModel, response_class=JSONResponse)
 async def read_user_me():
-    return {"result": {"username": "fakecurrentuser"}}
+    return {
+        "result": {"username": "fakecurrentuser"},
+        "description": "사용자 읽기 성공"
+    }
 
 
 @router.get("/users/{username}", tags=["users"], response_model=APIResponseModel, response_class=JSONResponse)
 async def read_user(username: str):
-    return {"result": {"username": username}}
+    return {
+        "result": {"username": username},
+        "description": "특정 사용자 읽기 성공"
+    }
