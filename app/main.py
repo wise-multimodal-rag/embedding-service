@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sys
@@ -14,11 +15,18 @@ from starlette.responses import JSONResponse
 
 from app.config import settings
 from app.dependencies import get_token_header
+from app.docs.main import description
 from app.internal import admin
 from app.log import setup_logging
 from app.routers import items, users
 from app.src.exception.service import SampleServiceError
 from app.version import GIT_REVISION, GIT_BRANCH, BUILD_DATE, GIT_SHORT_REVISION, VERSION, get_current_datetime
+
+# 앱 구동 성공 여부와 상관없이 앱 정보 출력
+print(json.dumps(
+    {"SERVICE NAME": settings.SERVICE_NAME, "SERVICE CODE": settings.SERVICE_CODE, "SERVICE VERSION": VERSION,
+     "HOME_PATH": os.getcwd(), "COMMAND": ' '.join(sys.argv),
+     "Usage": "uvicorn app.main:app --host 0.0.0.0 --port <port number>"}, ensure_ascii=False))
 
 
 @asynccontextmanager
@@ -36,13 +44,7 @@ app = FastAPI(
     lifespan=lifespan,
     title=f"{settings.SERVICE_NAME} Service",
     summary="AI플랫폼팀 Python FastAPI Template 🚀",
-    description="Markdown 형식으로 작성 가능하지만 개행 작성 필수\n"
-                "## Items\n"
-                "You can **read items**.\n"
-                "## Users\n"
-                "You will be able to:\n"
-                "* **Create users** (_not implemented_).\n"
-                "* **Read users** (_not implemented_).",
+    description=description,
     version=VERSION,
     license_info={
         "name": "Wisenut"
@@ -173,5 +175,4 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 if __name__ == '__main__':
-    """IDE 환경에서 debug 할때 사용 바람 - 로그 설정 overriding 순서 때문"""
     uvicorn.run(app="main:app", host="0.0.0.0", port=settings.PORT, log_level=settings.SYSTEM_LOG_LEVEL)
