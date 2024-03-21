@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     SERVICE_NAME: str = "Python FastAPI Template"
     SERVICE_CODE: int = 100
     MAJOR_VERSION: str = "v1"
+    STATUS: str = "dev"
 
     LEVEL: str = "DEBUG"
     SYSTEM_LOG_LEVEL: int = logging.getLevelName(LEVEL)

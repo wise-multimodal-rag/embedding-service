@@ -40,9 +40,8 @@ def git_version():
     return GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH
 
 
-def get_now_date():
-    BUILD_DATE = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    return BUILD_DATE
+def get_current_datetime(format: str = '%Y-%m-%d %H:%M:%S'):
+    return datetime.now().strftime(format)
 
 
 def make_version_info():
@@ -57,9 +56,10 @@ def make_version_info():
         GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown"
 
     if not ISRELEASED:
-        FULLVERSION += f'.{GIT_SHORT_REVISION}'
+        version_date = get_current_datetime('%y%m.%d')
+        FULLVERSION = f'{FULLVERSION}.{version_date}-{settings.STATUS}-{GIT_SHORT_REVISION}'
 
-    BUILD_DATE = get_now_date()
+    BUILD_DATE = get_current_datetime()
     SERVICE = settings.SERVICE_NAME
 
     return SERVICE, FULLVERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH, BUILD_DATE
@@ -92,7 +92,7 @@ build_date: str = '{build_date}'
 
 
 def get_version_info():
-    BUILD_DATE = get_now_date()
+    BUILD_DATE = get_current_datetime()
     FULL_VERSION, GIT_REVISION, GIT_SHORT_REVISION, GIT_BRANCH = "Unknown", "Unknown", "Unknown", "Unknown"
 
     try:

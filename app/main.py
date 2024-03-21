@@ -18,13 +18,13 @@ from app.internal import admin
 from app.log import setup_logging
 from app.routers import items, users
 from app.src.exception.service import SampleServiceError
-from app.version import GIT_REVISION, GIT_BRANCH, BUILD_DATE, GIT_SHORT_REVISION, VERSION, get_now_date
+from app.version import GIT_REVISION, GIT_BRANCH, BUILD_DATE, GIT_SHORT_REVISION, VERSION, get_current_datetime
 
 
 @asynccontextmanager
 async def lifespan(lifespan_app: FastAPI):
     # startup event
-    logging.info(f"uptime: {get_now_date()}")
+    logging.info(f"uptime: {get_current_datetime()}")
     logging.debug(f"Working Directory: {repr(os.getcwd())}")
     logging.info(f"Start {settings.SERVICE_NAME} {VERSION}")
     yield
@@ -140,7 +140,7 @@ def health():
         "home_path": os.getcwd(),
         "command": f"{' '.join(sys.argv)}",
         "build_date": BUILD_DATE,
-        "uptime": get_now_date()
+        "uptime": get_current_datetime()
     }
 
 
@@ -156,7 +156,7 @@ async def info():
         "git_revision": GIT_REVISION,
         "git_short_revision": GIT_SHORT_REVISION,
         "build_date": BUILD_DATE,
-        "uptime": get_now_date()
+        "uptime": get_current_datetime()
     }
 
 
