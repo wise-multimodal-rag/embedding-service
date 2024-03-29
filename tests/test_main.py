@@ -18,3 +18,8 @@ def test_root():
 def test_health():
     response = client.get("/health", headers={"x-token": settings.X_TOKEN})
     assert response.status_code == 200
+
+
+def test_info():
+    response = client.get("/info", headers={"x-token": settings.X_TOKEN})
+    assert response.status_code == 200

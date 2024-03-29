@@ -1,7 +1,1 @@
-description = "Markdown 형식으로 작성 가능하지만 개행 작성 필수\n" \
-              "## Items\n" \
-              "You can **read items**.\n" \
-              "## Users\n" \
-              "You will be able to:\n" \
-              "* **Create users** (_not implemented_).\n" \
-              "* **Read users** (_not implemented_)."
+description = "클러스터 환경에서 MiniO에 저장된 모델을 사용하여 텍스트 임베딩 결과를 제공하는 서비스\n"

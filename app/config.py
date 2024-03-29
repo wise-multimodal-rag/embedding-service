@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
     PORT: int = 8000
-    SERVICE_NAME: str = "Python FastAPI Template"
-    SERVICE_CODE: int = 100
+    SERVICE_NAME: str = "Embedding"
+    SERVICE_CODE: int = 112
     MAJOR_VERSION: str = "v1"
     STATUS: str = "dev"
 
@@ -48,7 +48,7 @@ class Settings(BaseSettings):
         Union[List[AnyUrl], str], BeforeValidator(parse_cors)
     ] = []
 
-    X_TOKEN: str = "fake-super-secret-token"
+    X_TOKEN: str = "wisenut"
 
 
 settings = Settings()  # type: ignore

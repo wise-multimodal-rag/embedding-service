@@ -33,10 +33,19 @@ class TokenValidationError(SampleServiceError):
         self.result = {"current_x_token": x_token}
 
 
-class InvalidItemStock(SampleServiceError):
-    """유효하지 않은 아이템 재고값 설정"""
+class InvalidModelNameError(SampleServiceError):
+    """유효하지 않는 S-BERT 모델"""
 
-    def __init__(self, stock):
-        self.code = int(f"{settings.SERVICE_CODE}{status.HTTP_400_BAD_REQUEST}")
-        self.message = "Invalid stock"
-        self.result = {"current_stock": stock}
+    def __init__(self, model_name):
+        self.code = int(f"{settings.SERVICE_CODE}{status.HTTP_404_NOT_FOUND}")
+        self.message = "Invalid model name"
+        self.result = {"current_model_name": model_name}
+
+
+class NonexistModelError(SampleServiceError):
+    """로컬에 존재하지 않는 모델"""
+
+    def __init__(self, model_name: str):
+        self.code = int(f"{settings.SERVICE_CODE}{status.HTTP_422_UNPROCESSABLE_ENTITY}")
+        self.message = "Model does not exist in the storage"
+        self.result = {"current_model_name": model_name}
