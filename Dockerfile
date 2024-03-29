@@ -18,12 +18,13 @@ RUN apt-get update && \
 # Set the working directory
 WORKDIR /home/wisenut/app
 
-# Copy necessary files and directory
-COPY pyproject.toml version_info.py .env ./
-COPY ./app ./app/
-
 # Install Requirements
+COPY pyproject.toml ./
 RUN pip install --upgrade pip && pip install --no-cache-dir .[test,lint]
+
+# Copy necessary files and directory
+COPY version_info.py .env ./
+COPY ./app ./app/
 
 # Expose the port
 EXPOSE 8000

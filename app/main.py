@@ -16,9 +16,8 @@ from starlette.responses import JSONResponse
 from app.config import settings
 from app.dependencies import get_token_header
 from app.docs.main import description
-from app.internal import admin
 from app.log import setup_logging
-from app.routers import items, users
+from app.routers import embedding
 from app.src.exception.service import SampleServiceError
 from app.version import GIT_REVISION, GIT_BRANCH, BUILD_DATE, GIT_SHORT_REVISION, VERSION, get_current_datetime
 
@@ -43,7 +42,7 @@ async def lifespan(lifespan_app: FastAPI):
 app = FastAPI(
     lifespan=lifespan,
     title=f"{settings.SERVICE_NAME} Service",
-    summary="AI플랫폼팀 Python FastAPI Template 🚀",
+    summary="Embedding Service 🚀",
     description=description,
     version=VERSION,
     license_info={
@@ -53,14 +52,7 @@ app = FastAPI(
 )
 app.logger = setup_logging()  # type: ignore
 
-app.include_router(users.router)
-app.include_router(items.router)
-app.include_router(
-    admin.router,  # app/internal/admin.py 원본을 수정하지 않고 선언 가능
-    prefix="/admin",
-    tags=["admin"],
-    responses={418: {"description": "I'm a teapot"}},
-)
+app.include_router(embedding.router)
 
 
 @app.middleware("http")

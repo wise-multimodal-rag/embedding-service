@@ -1,54 +1,42 @@
-"""
-pydantic BaseModel을 기본적으로 활용한다.
-- 권장사항
-    - Field(title, description, default, ...)를 사용하여 Swagger UI에 디폴트값, 설명, 예시 등을 작성한다.
-    - @field_validator(...)를 사용하여 모델의 필드값을 검토하도록 한다.
-    - @model_validator(...)를 사용하여 모델 적용 전과 후에 확인할 로직을 작성한다.
-    > 자세한 사항은 pydantic 공식 문서 확인
-"""
-from typing import Union, Dict, List
+from typing import List, Union, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, model_validator
 
 from app.config import settings
 from app.log import Log
-from app.src.exception.service import InvalidItemStock
 from app.version import VERSION
 
 
-class CreateItemsRequestModel(BaseModel):
-    name: str = Field(title="아이템 이름", description="아이템 이름", default="no name")
-    status: str
-    stock: int
+class EmbeddingRequest(BaseModel):
+    input: Union[str, List[str]] = Field(description="임베딩을 진행할 단일 문서 or 여러 문서")
+    model: str = Field(description="임베딩을 수행할 모델명")
+    encoding_format: Literal["float32", "int8", "uint8", "binary", "ubinary"] = Field(
+        title="임베딩 리턴 포맷 설정",
+        description="옵션: ['float32', 'int8', 'uint8', 'binary', 'ubinary']",
+        default="float32"
+    )
 
-    @field_validator('stock')
-    def check_stock(cls, stock):
-        if stock < 0:
-            raise InvalidItemStock(stock)
-        return stock    # return 필수! 작성하지 않으면 null값 return
-
-
-class ItemsResponseModel(BaseModel):
-    item_id: str
-    name: str
-
-
-class CreateItemResponseModel(BaseModel):
-    item: CreateItemsRequestModel
+    @model_validator(mode="after")
+    def str_input_to_list(self):
+        if isinstance(self.input, str):
+            self.input = [self.input]
+        return self
 
 
-class UserModel(BaseModel):
-    username: str
+class EmbeddingData(BaseModel):
+    object: str = Field(description="임베딩 결과 오브젝트명", default="embedding")
+    embedding: List[float] = Field(description="임베딩 결과", default=[])
+    index: int = Field(description="문서 임베딩 결과 인덱스", default=-1)
 
 
-class UsersResponseModel(BaseModel):
-    users: List[UserModel]
+class EmbeddingResponse(BaseModel):
+    object: str = Field(description="오브젝트명", default="list")
+    data: List[EmbeddingData]
+    model: str = Field(description="설정한 모델명")
 
 
 class APIResponseModel(BaseModel):
-    """기본 API 응답 포맷 by AIP Restful API 디자인 가이드"""
     code: int = int(f"{settings.SERVICE_CODE}200")
-    message: str = f"API Response Success ({VERSION})" if Log.is_debug_enable() else "API Response Success"
-    result: Union[
-        ItemsResponseModel, CreateItemResponseModel, UsersResponseModel, Dict[str, Union[str, Dict[str, str]]]] = {}
-    description: str = Field(default="API 응답 성공")
+    message: str = f"임베딩 성공 ({VERSION})" if Log.is_debug_enable() else "임베딩 성공"
+    result: EmbeddingResponse
+    description: str = Field(default="임베딩 성공")
