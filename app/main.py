@@ -108,7 +108,7 @@ async def request_validation_exception_handler(request: Request, exc: Validation
 
 
 @app.exception_handler(SampleServiceError)
-async def custom_exception_handler(request: Request, exc: SampleServiceError):
+async def embedding_exception_handler(request: Request, exc: SampleServiceError):
     logging.error(f"{request.client} {request.method} {request.url} → {repr(exc)}")
     return JSONResponse(
         status_code=200,

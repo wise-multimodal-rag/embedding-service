@@ -32,8 +32,7 @@ async def embedding(
     embeddings = sbert_embedding(request.input, request.model, request.encoding_format)  # type: ignore
     # formatting
     embedding_response = EmbeddingResponse(
-        data=[EmbeddingData(embedding=embedding, index=idx  # type: ignore
-                            ) for idx, embedding in enumerate(embeddings)],
+        data=[EmbeddingData(embedding=emb, index=idx) for idx, emb in enumerate(embeddings)],  # type: ignore
         model=request.model
     )
     return {
