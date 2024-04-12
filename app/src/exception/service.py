@@ -1,6 +1,3 @@
-"""
-서비스 자체 로직에 관한 커스텀 예외처리 작성
-"""
 import json
 
 from starlette import status
@@ -49,3 +46,12 @@ class NotExistModelError(SampleServiceError):
         self.code = int(f"{settings.SERVICE_CODE}{status.HTTP_422_UNPROCESSABLE_ENTITY}")
         self.message = f"Model does not exist in the storage: {error_message=}"
         self.result = {"current_model_name": model_name}
+
+
+class UnknownError(SampleServiceError):
+    """미확인 에러"""
+
+    def __init__(self, error_message):
+        self.code = int(f"{settings.SERVICE_CODE}{status.HTTP_422_UNPROCESSABLE_ENTITY}")
+        self.message = f"Unknown Error: {error_message=}"
+        self.result = {"current_error_message": error_message}

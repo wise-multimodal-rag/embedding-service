@@ -16,6 +16,11 @@
 모델을 사용하여 텍스트 임베딩 결과를 제공하는 서비스
 > **클러스터 환경에서 MiniO에 저장된 모델을 사용하여 텍스트 임베딩 결과를 제공**하는 것을 기본으로 한다.
 
+- Embeddings
+  - Doc2Vec
+  - USE (Universal Sentence Encoder)
+  - Sentence BERT
+
 ## Getting started
 
 ### 1. Create Project

@@ -10,17 +10,20 @@ from app.version import VERSION
 class EmbeddingRequest(BaseModel):
     input: Union[str, List[str]] = Field(description="임베딩을 진행할 단일 문서 or 여러 문서")
     model: str = Field(description="임베딩을 수행할 모델명")
-    encoding_format: Literal["float32", "int8", "uint8", "binary", "ubinary"] = Field(
-        title="임베딩 리턴 포맷 설정",
-        description="옵션: ['float32', 'int8', 'uint8', 'binary', 'ubinary']",
-        default="float32"
-    )
 
     @model_validator(mode="after")
     def str_input_to_list(self):
         if isinstance(self.input, str):
             self.input = [self.input]
         return self
+
+
+class SBertEmbeddingRequest(EmbeddingRequest):
+    encoding_format: Literal["float32", "int8", "uint8", "binary", "ubinary"] = Field(
+        title="임베딩 리턴 포맷 설정",
+        description="옵션: ['float32', 'int8', 'uint8', 'binary', 'ubinary']",
+        default="float32"
+    )
 
 
 class EmbeddingData(BaseModel):
