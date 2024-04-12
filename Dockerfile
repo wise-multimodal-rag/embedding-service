@@ -20,7 +20,7 @@ WORKDIR /home/wisenut/app
 
 # Install Requirements
 COPY pyproject.toml ./
-RUN pip install --upgrade pip && pip install --no-cache-dir .[test,lint]
+RUN pip install --upgrade pip && pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu .[test,lint]
 
 # Copy necessary files and directory
 COPY version_info.py .env ./

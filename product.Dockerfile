@@ -20,7 +20,7 @@ COPY pyproject.toml version_info.py .env ./
 COPY ./app ./app/
 
 # Install Requirements
-RUN pip install --upgrade pip && pip install --no-cache-dir .
+RUN pip install --upgrade pip && pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu .
 
 # Expose the port
 EXPOSE 8000

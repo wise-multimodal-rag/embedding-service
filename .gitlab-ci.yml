@@ -28,7 +28,7 @@ build-job:
   script:
     - pip3 install build wheel
     - python3 -m build . --wheel
-    - pip3 install .[test,lint]
+    - pip3 install --extra-index-url https://download.pytorch.org/whl/cpu .[test,lint]
 
 unit-test-job:
   stage: test
