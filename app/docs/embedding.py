@@ -1,12 +1,11 @@
 from app.models import EmbeddingRequest
-from tests.conftest import doc2vec_default_model_name
 
 doc2vec_embedding_single_normal_example = {
     "summary": "싱글 임베딩 기본 예제",
     "description": "한 문서를 임베딩하는 예제",
     "value": {
         "input": "임베딩을 진행할 텍스트입니다. 어떻게 임베딩되는지 확인해볼까요?",
-        "model": doc2vec_default_model_name
+        "model": "my_doc2vec_model"
     }
 }
 doc2vec_embedding_examples = {
