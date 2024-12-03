@@ -14,6 +14,8 @@
       - .cache/pytest_cache
 
 .pip:
+  tags:
+    - saas-linux-medium-amd64 # 16GB Memory, 50GB storage
   extends: .dependency-management
   before_script:
     - echo "Running before_script tasks for $CI_JOB_NAME";
@@ -24,8 +26,6 @@
     - source venv/bin/activate
 
 build:
-  tags:
-    - saas-linux-medium-amd64 # 16GB Memory, 50GB storage
   extends: .pip
   stage: build
   script:
