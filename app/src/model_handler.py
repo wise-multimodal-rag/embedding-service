@@ -6,10 +6,13 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from gensim.test.utils import common_texts
 from sentence_transformers import SentenceTransformer
 
+from app.exceptions.service import NotExistModelError, InvalidModelError, UnknownError
+
 default_model_dir = "models"
 
 
 def embedding_model_validator(func):
+    """Embedding Model Validator"""
     def wrapper(*args, **kwargs):
         # model path exist check
         if not Path(default_model_dir).exists():
@@ -62,6 +65,7 @@ def save_sbert_model(model_name):
 
 
 def get_saved_model_path(model_name: str):
+    """Get saved model path"""
     model_resolve_path = str(Path(default_model_dir).joinpath(model_name).resolve())
     logging.debug(f"{model_resolve_path=}")
     return model_resolve_path
