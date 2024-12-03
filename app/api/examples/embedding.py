@@ -1,4 +1,4 @@
-from app.models import EmbeddingRequest
+from app.schemas.models import EmbeddingRequest
 
 doc2vec_embedding_single_normal_example = {
     "summary": "싱글 임베딩 기본 예제",

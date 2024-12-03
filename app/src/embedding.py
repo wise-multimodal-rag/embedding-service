@@ -4,7 +4,7 @@ import tensorflow_hub as hub
 from gensim.models.doc2vec import Doc2Vec
 from sentence_transformers import SentenceTransformer
 
-from app.models import EmbeddingResponse, EmbeddingData
+from app.schemas.models import EmbeddingResponse, EmbeddingData
 from app.src.model_handler import embedding_model_validator, get_saved_model_path
 
 
