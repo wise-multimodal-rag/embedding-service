@@ -13,6 +13,7 @@ default_model_dir = "models"
 
 def embedding_model_validator(func):
     """Embedding Model Validator"""
+
     def wrapper(*args, **kwargs):
         # model path exist check
         if not Path(default_model_dir).exists():
@@ -30,6 +31,13 @@ def embedding_model_validator(func):
             raise UnknownError(exc)
 
     return wrapper
+
+
+def get_saved_model_path(model_name: str):
+    """Get saved model path"""
+    model_resolve_path = str(Path(default_model_dir).joinpath(model_name).resolve())
+    logging.debug(f"{model_resolve_path=}")
+    return model_resolve_path
 
 
 def save_doc2vec_model(model_name):
@@ -62,10 +70,3 @@ def save_sbert_model(model_name):
     modelPath = f"{default_model_dir}/{model_name}"
     model = SentenceTransformer(model_name)
     model.save(modelPath)
-
-
-def get_saved_model_path(model_name: str):
-    """Get saved model path"""
-    model_resolve_path = str(Path(default_model_dir).joinpath(model_name).resolve())
-    logging.debug(f"{model_resolve_path=}")
-    return model_resolve_path
