@@ -1,12 +1,13 @@
 import json
+import json
 
 from starlette import status
 
 from app.config import settings
-from app.exceptions.base import ApplicationError
 
 
-class EmbeddingServiceError(Exception):
+class ApplicationError(Exception):
+    """Application 내에서 발생하는 에러 포맷"""
 
     def __init__(self, code: int, message: str, result):
         self.code = code
@@ -21,11 +22,9 @@ class EmbeddingServiceError(Exception):
         }
         return json.dumps(exception_data, indent=4, ensure_ascii=False)
 
-
-class TokenValidationError(EmbeddingServiceError):
-    """유효하지 않은 토큰 설정"""
-
-    def __init__(self, x_token):
-        self.code = int(f"{settings.SERVICE_CODE}{status.HTTP_401_UNAUTHORIZED}")
-        self.message = "Invalid x-token header"
-        self.result = {"current_x_token": x_token}
+    def to_dict(self):
+        return {
+            "code": self.code,
+            "message": self.message,
+            "result": self.result
+        }

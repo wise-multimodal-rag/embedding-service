@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
     PORT: int = 8000
-    SERVICE_NAME: str = "Embedding"
+    SERVICE_NAME: str = "Embedding Service"
     SERVICE_CODE: int = 112
     MAJOR_VERSION: str = "v1"
     STATUS: str = "dev"

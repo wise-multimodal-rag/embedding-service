@@ -5,14 +5,18 @@ import sys
 import time
 import typing
 from contextlib import asynccontextmanager
+from uuid import uuid4
 
 import uvicorn
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.openapi.docs import get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html, get_redoc_html
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from loguru import logger
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
-from starlette.staticfiles import StaticFiles
 from starlette.types import HTTPExceptionHandler
 
 from app import handlers
@@ -20,7 +24,7 @@ from app.api.api_router import api_router
 from app.config import settings
 from app.constants import DESCRIPTION, SUMMARY, LICENSE_INFO
 from app.dependencies import get_token_header
-from app.exceptions.exceptions import ApplicationError
+from app.exceptions.base import ApplicationError
 from app.log import setup_logging
 from app.version import GIT_REVISION, GIT_BRANCH, BUILD_DATE, GIT_SHORT_REVISION, VERSION, get_current_datetime
 

@@ -6,8 +6,6 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from gensim.test.utils import common_texts
 from sentence_transformers import SentenceTransformer
 
-from app.exceptions import NotExistModelError, InvalidModelError, UnknownError
-
 default_model_dir = "models"
 
 
