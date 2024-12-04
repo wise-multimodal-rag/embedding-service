@@ -5,7 +5,7 @@ from starlette import status
 from app.config import settings
 
 
-class SampleServiceError(Exception):
+class EmbeddingServiceError(Exception):
 
     def __init__(self, code: int, message: str, result):
         self.code = code
@@ -21,7 +21,7 @@ class SampleServiceError(Exception):
         return json.dumps(exception_data, indent=4, ensure_ascii=False)
 
 
-class TokenValidationError(SampleServiceError):
+class TokenValidationError(EmbeddingServiceError):
     """유효하지 않은 토큰 설정"""
 
     def __init__(self, x_token):
@@ -30,7 +30,7 @@ class TokenValidationError(SampleServiceError):
         self.result = {"current_x_token": x_token}
 
 
-class InvalidModelError(SampleServiceError):
+class InvalidModelError(EmbeddingServiceError):
     """유효하지 않는 S-BERT 모델"""
 
     def __init__(self, model_name, error_message):
@@ -39,7 +39,7 @@ class InvalidModelError(SampleServiceError):
         self.result = {"current_model_name": model_name}
 
 
-class NotExistModelError(SampleServiceError):
+class NotExistModelError(EmbeddingServiceError):
     """로컬에 존재하지 않는 모델"""
 
     def __init__(self, model_name: str, error_message):
@@ -48,7 +48,7 @@ class NotExistModelError(SampleServiceError):
         self.result = {"current_model_name": model_name}
 
 
-class UnknownError(SampleServiceError):
+class UnknownError(EmbeddingServiceError):
     """미확인 에러"""
 
     def __init__(self, error_message):

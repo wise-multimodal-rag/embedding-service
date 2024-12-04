@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends
 from fastapi.params import Body
 from fastapi.responses import JSONResponse
 
+from app.api.examples.embedding import sbert_embedding_examples, doc2vec_embedding_examples, use_embedding_examples
 from app.dependencies import get_token_header
-from app.docs.embedding import sbert_embedding_examples, doc2vec_embedding_examples, use_embedding_examples
-from app.models import APIResponseModel, EmbeddingRequest, SBertEmbeddingRequest
+from app.schemas.models import EmbeddingRequest, SBertEmbeddingRequest
+from app.schemas.response import APIResponseModel
 from app.src.embedding import sbert_embedding, doc2vec_embedding, formatting_embedding_result, use_embedding
 from app.version import VERSION
 
@@ -53,7 +54,7 @@ async def embedding_use(
         ]
 ):
     # embedding
-    embeddings = use_embedding(request.input, request.model)    # pyright: ignore
+    embeddings = use_embedding(request.input, request.model)  # pyright: ignore
     # formatting
     embedding_response = formatting_embedding_result(embeddings, request.model)
     return {

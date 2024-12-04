@@ -36,10 +36,3 @@ class EmbeddingResponse(BaseModel):
     object: str = Field(description="오브젝트명", default="list")
     data: List[EmbeddingData]
     model: str = Field(description="설정한 모델명")
-
-
-class APIResponseModel(BaseModel):
-    code: int = int(f"{settings.SERVICE_CODE}200")
-    message: str = f"임베딩 성공 ({VERSION})" if Log.is_debug_enable() else "임베딩 성공"
-    result: EmbeddingResponse
-    description: str = Field(default="임베딩 성공")

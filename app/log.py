@@ -28,9 +28,9 @@ def setup_logging():
     # intercept everything at the root logger
     logging.root.handlers = [InterceptHandler()]
     try:
-        logging.root.setLevel(settings.SYSTEM_LOG_LEVEL)
+        logging.root.setLevel(settings.log_level)
     except ValueError:
-        sys.exit(f"Set appropriate 'LOG_LEVEL' environment variable. current {settings.SYSTEM_LOG_LEVEL=}")
+        sys.exit(f"Set appropriate 'LOG_LEVEL' environment variable. current {settings.LEVEL=}")
 
     # remove every other logger's handlers
     # and propagate to root logger
@@ -39,15 +39,22 @@ def setup_logging():
         logging.getLogger(name).propagate = True
 
     # configure loguru
-    logger.configure(handlers=[{"sink": sys.stdout, "serialize": settings.JSON_LOG}])
+    if settings.JSON_LOG:
+        logger_config = dict(sink=sys.stdout, serialize=settings.JSON_LOG, format="{message}")
+    else:
+        # logger_config = dict(sink=sys.stdout)
+        logger_config = dict(sink=sys.stdout, format=settings.LOGURU_FORMAT)
+    logger.configure(handlers=[logger_config], extra={"request_id": ''})  # extra[request_id] 기본값 지정
     if settings.SAVE:
         log_save_path = Path(settings.LOG_SAVE_PATH) / "{time:YYYY}" / "{time:MM}" / "{time:YYYYMMDD}_info.log"
-        logger.add(
+        logger.add(  # type: ignore
             log_save_path,
-            level=settings.SYSTEM_LOG_LEVEL,
+            level=settings.log_level,
             rotation=settings.ROTATION,
             retention=settings.RETENTION,
-            compression=settings.COMPRESSION
+            compression=settings.COMPRESSION,
+            serialize=settings.JSON_LOG,
+            format=settings.LOGURU_FORMAT
         )
     return logger.bind()
 
@@ -55,22 +62,7 @@ def setup_logging():
 class Log:
     """todo : 펑션으로 처리"""
     TRACE: int = 10
-    log_level = int(settings.SYSTEM_LOG_LEVEL)
-
-    @staticmethod
-    def get_healthckeck_log_level():
-        if settings.SYSTEM_LOG_LEVEL == logging.DEBUG:
-            return 'debug'
-        elif settings.SYSTEM_LOG_LEVEL == logging.INFO:
-            return 'info'
-        elif settings.SYSTEM_LOG_LEVEL == logging.WARN:
-            return 'warn'
-        elif settings.SYSTEM_LOG_LEVEL == logging.ERROR:
-            return 'error'
-        elif settings.SYSTEM_LOG_LEVEL == logging.FATAL:
-            return 'critical'
-        else:
-            return 'no log_level'
+    log_level = int(settings.log_level)
 
     @staticmethod
     def is_trace_enable():

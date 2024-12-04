@@ -1,82 +1,10 @@
-image: python:3.9.13-slim
-
 stages:
-  - build
+  - lint
   - test
-  - deploy
+  - build-and-push-app
 
-variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PIPELINE_SEQUENCE: $CI_PIPELINE_IID
-  TZ: "Asia/Seoul"
-
-cache:
-  paths:
-    - .cache/pip
-    - venv/
-    - .mypy_cache/
-
-before_script:
-  - python3 -V
-  - pip install --upgrade pip
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
-
-build-job:
-  stage: build
-  script:
-    - pip3 install build wheel
-    - python3 -m build . --wheel
-    - pip3 install --extra-index-url https://download.pytorch.org/whl/cpu .[test,lint]
-
-unit-test-job:
-  stage: test
-  script:
-    - export PYTHONPATH=./app
-    - pytest -v tests
-
-lint-test-job:
-  stage: test
-  script:
-    - ruff check .
-
-type-checker-lint-test-job:
-  stage: test
-  script:
-    - mypy .
-
-pyright-lint-test-job:
-  stage: test
-  script:
-    - pyright ./
-
-deploy-gitlab-job:
-  image: docker:23.0.1
-  stage: deploy
-  services:
-    - docker:23.0.1-dind
-  before_script:
-    - apk add --no-cache tzdata
-    - export TZ=Asia/Seoul  # TODO: 아직까지도 UTC Timezone으로 설정됨
-    - |
-      set -o allexport
-      source .env
-      VERSION=${MAJOR_VERSION}.$(date +'%y%m.%d')-${STATUS}-$CI_COMMIT_SHORT_SHA
-      set +o allexport
-    - IMAGE_TAG=$CI_REGISTRY_IMAGE:$VERSION
-    - IMAGE_TAG_LATEST=$CI_REGISTRY_IMAGE:latest
-    - BUILD_DATE=$(date +'%Y-%m-%d %H:%M:%S')
-    - |
-      echo "version: str = '$VERSION'" > version_info.py
-      echo "git_branch: str = '$CI_COMMIT_BRANCH'" >> version_info.py
-      echo "git_revision: str = '$CI_COMMIT_SHA'" >> version_info.py
-      echo "git_short_revision: str = '$CI_COMMIT_SHORT_SHA'" >> version_info.py
-      echo "build_date: str = '$BUILD_DATE'" >> version_info.py
-  script:
-    - docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
-    - docker build -t $IMAGE_TAG -t $IMAGE_TAG_LATEST .
-    - docker push $IMAGE_TAG
-    - docker push $IMAGE_TAG_LATEST
-  only:
-    - main
+include:
+  - local: '.gitlab/ci/Dependency-Management.gitlab-ci.yml'
+  - local: '.gitlab/ci/Lint.gitlab-ci.yml'
+  - local: '.gitlab/ci/Test.gitlab-ci.yml'
+  - local: '.gitlab/ci/Build-and-Push-App.gitlab-ci.yml'
