@@ -1,5 +1,5 @@
 .lint:
-  extends: .pip
+  extends: .pip-lint
   stage: lint
   rules:
     - if: '$CI_MERGE_REQUEST_ID == null'

@@ -27,3 +27,18 @@
     - pip3 install build wheel
     - python3 -m build . --wheel
     - pip3 install --extra-index-url https://download.pytorch.org/whl/cpu .[test,lint]
+
+.pip-lint:
+  tags:
+    - saas-linux-medium-amd64 # 16GB Memory, 50GB storage
+  extends: .dependency-management
+  before_script:
+    - echo "Running before_script tasks for $CI_JOB_NAME";
+    - python3 -V
+    - pip install --upgrade pip
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip3 install build wheel
+    - python3 -m build . --wheel
+    - pip3 install --extra-index-url https://download.pytorch.org/whl/cpu --no-deps ".[lint]"
